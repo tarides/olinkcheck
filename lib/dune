@@ -1,2 +1,3 @@
 (library
- (name olinkcheck))
+ (name olinkcheck)
+ (libraries omd))
