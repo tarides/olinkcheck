@@ -1,6 +1,6 @@
 open Olinkcheck
 
-let file_contents file = In_channel.with_open_bin file In_channel.input_all
+let file_contents file = In_channel.(with_open_bin file In_channel.input_all)
 
 let () =
   if Array.length Sys.argv < 2 then
