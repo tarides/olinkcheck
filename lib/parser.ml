@@ -16,15 +16,14 @@ let extract_links text =
       | H3 hd
       | H4 hd
       | H5 hd
-      | H6 hd )
+      | H6 hd
+      | Html (_, _, hd)
+      | Html_block (_, _, hd) )
       :: tl ->
         let lst = loop hd in
         lst @ loop tl
     | (Ul l | Ol l | Ulp l | Olp l) :: tl ->
         let lst = List.concat_map loop l in
-        lst @ loop tl
-    | (Html (_, _, body) | Html_block (_, _, body)) :: tl ->
-        let lst = loop body in
         lst @ loop tl
     | _ :: tl -> loop tl
   in
