@@ -10,5 +10,6 @@ let () =
     print_endline "Usage: olinkcheck filename.md"
   else
     let links = Parser.extract_links (file_contents Sys.argv.(1)) in
-    let statuses = List.map Link.get_link_status links in
-    List.iter pretty_print_link_status (List.combine links statuses)
+    List.map Link.get_link_status links
+    |> List.combine links
+    |> List.iter pretty_print_link_status
