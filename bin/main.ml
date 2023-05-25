@@ -11,8 +11,7 @@ let () =
   if Array.length Sys.argv < 2 then
     print_endline "Usage: olinkcheck filename.md"
   else
-    let links = Parser.extract_links (file_contents Sys.argv.(1)) in
+    let links = extract_links (file_contents Sys.argv.(1)) in
     List.iter
-      (fun link ->
-        link |> with_arg Link.get_link_status |> pretty_print_link_status)
+      (fun link -> link |> with_arg get_link_status |> pretty_print_link_status)
       links
