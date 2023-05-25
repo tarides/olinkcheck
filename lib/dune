@@ -1,3 +1,5 @@
 (library
  (name olinkcheck)
- (libraries omd))
+ (libraries omd hyper)
+ (preprocess
+  (pps lwt_ppx)))

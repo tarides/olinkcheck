@@ -12,6 +12,7 @@ depends: [
   "dune" {>= "3.7"}
   "omd"
   "alcotest" {with-test}
+  "hyper"
   "odoc" {with-doc}
 ]
 build: [
