@@ -13,6 +13,7 @@ depends: [
   "omd"
   "alcotest" {with-test}
   "hyper"
+  "lwt"
   "odoc" {with-doc}
 ]
 build: [
