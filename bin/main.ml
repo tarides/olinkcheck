@@ -13,5 +13,5 @@ let () =
   else
     let links = extract_links (file_contents Sys.argv.(1)) in
     List.iter
-      (fun link -> link |> with_arg get_link_status |> pretty_print_link_status)
+      (fun link -> link |> with_arg link_status |> pretty_print_link_status)
       links

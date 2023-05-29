@@ -27,16 +27,16 @@ let test_text_with_links () =
 let test_valid_link () =
   Alcotest.(check (pair int string))
     "same pair" (200, "OK")
-    (get_link_status "http://www.google.com")
+    (link_status "http://www.google.com")
 
 let test_nonexistent_link () =
   Alcotest.(check (pair int string))
     "same pair" (404, "Not Found")
-    (get_link_status "http://google.com/does-not-exist")
+    (link_status "http://google.com/does-not-exist")
 
 let test_invalid_link () =
   Alcotest.(check (pair int string))
-    "same pair" (0, "Invalid Link") (get_link_status "")
+    "same pair" (0, "Invalid Link") (link_status "")
 
 let () =
   Alcotest.run "Olinkcheck"
