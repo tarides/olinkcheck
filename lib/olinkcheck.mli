@@ -1,4 +1,7 @@
 val extract_links : string -> string list
-val link_status : string -> int * string
-val link_status_request : string -> Hyper.status Lwt.t
-val link_status_client : ('a -> [< Hyper.status ]) -> 'a -> int * string
+
+module Link : sig
+  val status : string -> int * string
+  val request : string -> Hyper.status Lwt.t
+  val client : ('a -> [< Hyper.status ]) -> 'a -> int * string
+end
