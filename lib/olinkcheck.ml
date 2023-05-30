@@ -1,2 +1,2 @@
 include Parser
-include Link
+module Link = Link

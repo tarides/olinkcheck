@@ -1,2 +1,5 @@
 val extract_links : string -> string list
-val get_link_status : string -> int * string
+
+module Link : sig
+  include module type of Link
+end

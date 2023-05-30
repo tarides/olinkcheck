@@ -1,15 +1,16 @@
-let get_link_status link =
-  let open Hyper in
-  let request = request ~method_:`GET link in
+let request link =
+  let open Lwt.Syntax in
+  let request = Hyper.request ~method_:`GET link in
+  let* response = Hyper.run request in
+  Lwt.return (Hyper.status response)
+
+let client server link =
   let status =
-    match
-      Lwt_main.run
-        (let open Lwt.Syntax in
-         let* response = run request in
-         Lwt.return (status response))
-    with
+    match server link with
     | exception Invalid_argument _ -> (0, "Invalid Link")
     | exception exn -> (0, Printexc.to_string exn)
-    | status -> (status_to_int status, status_to_string status)
+    | status -> (Hyper.status_to_int status, Hyper.status_to_string status)
   in
   status
+
+let status = client (fun link -> link |> request |> Lwt_main.run)
