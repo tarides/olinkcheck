@@ -7,5 +7,7 @@ let () =
     let links = extract_links (Utils.file_contents Sys.argv.(1)) in
     List.iter
       (fun link ->
-        link |> Utils.with_arg Link.status |> Utils.pretty_print_link_status)
+        link
+        |> (fun f x -> (x, f x)) Link.status
+        |> Utils.pretty_print_link_status)
       links
