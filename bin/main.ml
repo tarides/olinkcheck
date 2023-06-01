@@ -19,9 +19,7 @@ let olinkcheck format file =
         (let links = extract_links (Utils.file_contents file) in
          List.iter
            (fun link ->
-             link
-             |> (fun f x -> (x, f x)) Link.status
-             |> Utils.pretty_print_link_status)
+             (link, Link.status link) |> Utils.pretty_print_link_status)
            links)
 
 let cmd =
