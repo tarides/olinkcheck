@@ -11,6 +11,8 @@
 
 (maintainers "Shreyas Krishnakumar")
 
+(license ISC)
+
 (package
  (name olinkcheck)
  (synopsis "A tool to detect broken URLs in markdown")
