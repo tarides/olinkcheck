@@ -1,2 +1,2 @@
-include Parser
+module Markdown = Markdown
 module Link = Link
