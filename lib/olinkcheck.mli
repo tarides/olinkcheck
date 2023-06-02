@@ -1,4 +1,6 @@
-val extract_links : string -> string list
+module Markdown : sig
+  include module type of Markdown
+end
 
 module Link : sig
   include module type of Link

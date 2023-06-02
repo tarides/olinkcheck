@@ -16,7 +16,7 @@ let olinkcheck format file =
   match format with
   | Markdown ->
       `Ok
-        (let links = extract_links (Utils.file_contents file) in
+        (let links = Markdown.extract_links (Utils.file_contents file) in
          List.iter
            (fun link ->
              (link, Link.status link) |> Utils.pretty_print_link_status)
