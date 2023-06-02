@@ -15,6 +15,7 @@ depends: [
   "hyper"
   "lwt"
   "cmdliner"
+  "re"
   "odoc" {with-doc}
 ]
 build: [
