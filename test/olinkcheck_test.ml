@@ -110,6 +110,14 @@ let () =
           Alcotest.test_case "Text with links" `Slow
             Markdown_test.test_text_with_links;
         ] );
+      ( "extract-links-plaintext",
+        [
+          Alcotest.test_case "Empty text" `Quick Plaintext_test.test_empty_text;
+          Alcotest.test_case "Text without links" `Quick
+            Plaintext_test.test_text_without_links;
+          Alcotest.test_case "Text with links" `Slow
+            Plaintext_test.test_text_with_links;
+        ] );
       ( "link-status",
         [
           Alcotest.test_case "Valid link" `Quick test_valid_link;
