@@ -1,11 +1,11 @@
 open Olinkcheck
 open Cmdliner
 
-type format = Markdown
+type format = Markdown | Plaintext
 
 let format =
   let doc = "Format of the input file." in
-  let format = Arg.enum [ ("md", Markdown) ] in
+  let format = Arg.enum [ ("md", Markdown); ("txt", Plaintext) ] in
   Arg.(required & pos 0 (some format) None & info [] ~docv:"FORMAT" ~doc)
 
 let file =
@@ -15,12 +15,10 @@ let file =
 let olinkcheck format file =
   match format with
   | Markdown ->
+      `Ok (Utils.pretty_print_link_status_from_file Markdown.extract_links file)
+  | Plaintext ->
       `Ok
-        (let links = Markdown.extract_links (Utils.file_contents file) in
-         List.iter
-           (fun link ->
-             (link, Link.status link) |> Utils.pretty_print_link_status)
-           links)
+        (Utils.pretty_print_link_status_from_file Plaintext.extract_links file)
 
 let cmd =
   let doc = "Check the status of links in a file." in
