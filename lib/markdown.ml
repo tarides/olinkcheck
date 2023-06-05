@@ -1,7 +1,8 @@
 open Omd
 
-let extract_links text =
-  let md = of_string text in
+let from_string = of_string
+
+let extract_links md =
   let rec loop = function
     | [] -> []
     | Url (href, s, _) :: tl ->
@@ -28,3 +29,23 @@ let extract_links text =
     | _ :: tl -> loop tl
   in
   loop md
+
+let fix_links md =
+  let links_status =
+    md |> extract_links |> List.map (fun link -> (link, Link.status link))
+  in
+  let fix id new_url =
+    let track_count =
+      let cnt = ref (-1) in
+      fun () ->
+        incr cnt;
+        !cnt
+    in
+    Omd_representation.visit (function
+      | Url (a, b, c) ->
+          let count = track_count () in
+          if id = count then Some [ Url (new_url, b, c) ]
+          else Some [ Url (a, b, c) ]
+      | _ -> None)
+  in
+  (links_status, fix)

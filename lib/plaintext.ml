@@ -1,3 +1,5 @@
+let from_string = Fun.id
+
 let extract_links text =
   let regexp =
     Re.compile
