@@ -15,10 +15,15 @@ let file =
 let olinkcheck format file =
   match format with
   | Markdown ->
-      `Ok (Utils.pretty_print_link_status_from_file Markdown.extract_links file)
+      `Ok
+        Markdown.(
+          Utils.pretty_print_link_status_from_file from_string extract_links
+            file)
   | Plaintext ->
       `Ok
-        (Utils.pretty_print_link_status_from_file Plaintext.extract_links file)
+        Plaintext.(
+          Utils.pretty_print_link_status_from_file from_string extract_links
+            file)
 
 let cmd =
   let doc = "Check the status of links in a file." in
