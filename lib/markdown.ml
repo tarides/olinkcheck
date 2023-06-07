@@ -28,3 +28,29 @@ let extract_links md =
     | _ :: tl -> loop tl
   in
   loop md
+
+let rec replace_in_inline v i u =
+  match (u, v) with
+  | Link (a, { label; destination; title }), (n, new_dest) ->
+      let new_link =
+        if i = n then Link (a, { label; destination = new_dest; title })
+        else Link (a, { label; destination; title })
+      in
+      (i + 1, new_link)
+  | Emph (a, x), v ->
+      let i', x' = replace_in_inline v i x in
+      (i', Emph (a, x'))
+  | Strong (a, x), v ->
+      let i', x' = replace_in_inline v i x in
+      (i', Strong (a, x'))
+  | Concat (a, xs), v ->
+      let rec loop i xs =
+        match (i, xs) with
+        | i, [] -> (i, [])
+        | i, x :: xs ->
+            let i', x' = replace_in_inline v i x in
+            (i', x' :: snd (loop i' xs))
+      in
+      let i', xs' = loop i xs in
+      (i', Concat (a, xs'))
+  | el, _ -> (i, el)
