@@ -18,12 +18,12 @@ let rec files_with_ext ext file =
   else []
 
 let pretty_print_link_status_from_file ext from_string extract_links file =
-  try
-    file |> files_with_ext ext
-    |> List.iter (fun file ->
-           print_endline file;
+  file |> files_with_ext ext
+  |> List.iter (fun file ->
+         try
            file |> file_contents |> from_string |> extract_links
-           |> List.iter (fun link ->
-                  (link, Olinkcheck.Link.status link)
-                  |> pretty_print_link_status))
-  with Sys_error _ -> ()
+           |>
+           (print_endline file;
+            List.iter (fun link ->
+                (link, Olinkcheck.Link.status link) |> pretty_print_link_status))
+         with Sys_error _ -> ())
