@@ -29,89 +29,97 @@ let extract_links md =
   in
   loop md
 
-let loop f i v xs =
-  let rec aux f i v xs xs' =
-    match xs with
-    | [] -> (i, [], v, xs')
-    | x :: xs ->
-        let i', x', v' = f i v x in
-        aux f i' v' xs (x' :: xs')
+let loop f p xs =
+  let p', xs' =
+    List.fold_left
+      (fun (p, xs) x ->
+        let p', x' = f p x in
+        (p', x' :: xs))
+      (p, []) xs
   in
-  match aux f i v xs [] with i, _, v', xs' -> (i, List.rev xs', v')
+  (p', List.rev xs')
 
-let rec replace_in_inline i v u =
+let rec replace_in_inline (i, v) u =
   match (u, v) with
   | Link (a, { label; destination; title }), (n, new_dest) :: vs ->
       let new_link, v =
         if i = n then (Link (a, { label; destination = new_dest; title }), vs)
         else (Link (a, { label; destination; title }), v)
       in
-      (i + 1, new_link, v)
+      ((i + 1, v), new_link)
   | Emph (a, x), v ->
-      let i', x', v' = replace_in_inline i v x in
-      (i', Emph (a, x'), v')
+      let (i', v'), x' = replace_in_inline (i, v) x in
+      ((i', v'), Emph (a, x'))
   | Strong (a, x), v ->
-      let i', x', v' = replace_in_inline i v x in
-      (i', Strong (a, x'), v')
+      let (i', v'), x' = replace_in_inline (i, v) x in
+      ((i', v'), Strong (a, x'))
   | Concat (a, xs), v ->
-      let i', xs', v' = loop replace_in_inline i v xs in
-      (i', Concat (a, xs'), v')
-  | el, _ -> (i, el, v)
+      let (i', v'), xs' = loop replace_in_inline (i, v) xs in
+      ((i', v'), Concat (a, xs'))
+  | el, _ -> ((i, v), el)
 
-let rec replace_in_block i v u =
-  match (u, v) with
-  | Paragraph (a, x), v ->
-      let i', x', v' = replace_in_inline i v x in
-      (i', Paragraph (a, x'), v')
-  | List (a, b, c, xss), v ->
-      let rec loop1 i xss v =
-        match xss with
-        | [] -> (i, [], v)
-        | xs :: xss ->
-            let i', xs', v' = loop replace_in_block i v xs in
-            let i'', xss', v'' = loop1 i' xss v' in
-            (i'', [ xs' ] @ xss', v'')
+let rec replace_in_block p u =
+  match (u, p) with
+  | Paragraph (a, x), p ->
+      let p', x' = replace_in_inline p x in
+      (p', Paragraph (a, x'))
+  | List (a, b, c, xss), p ->
+      let block_list_loop p xss =
+        let p', xss' =
+          List.fold_left
+            (fun (p, xss) xs ->
+              let p', xs' = loop replace_in_block p xs in
+              (p', [ xs' ] @ xss))
+            (p, []) xss
+        in
+        (p', List.rev xss')
       in
-      let i'', xss', v' = loop1 i xss v in
-      (i'', List (a, b, c, xss'), v')
-  | Blockquote (a, xs), v ->
-      let i', xs', v' = loop replace_in_block i v xs in
-      (i', Blockquote (a, xs'), v')
-  | Heading (a, b, x), v ->
-      let i', x', v' = replace_in_inline i v x in
-      (i', Heading (a, b, x'), v')
-  | Definition_list (a, dl), v ->
-      let rec loop1 i dl v =
-        match dl with
-        | [] -> (i, [], v)
-        | { term; defs } :: dl ->
-            let i', term', v' = replace_in_inline i v term in
-            let i'', ds', v'' = loop replace_in_inline i' v' defs in
-            let i''', dl', v''' = loop1 i'' dl v'' in
-            (i''', { term = term'; defs = ds' } :: dl', v''')
+      let p', xss' = block_list_loop p xss in
+      (p', List (a, b, c, xss'))
+  | Blockquote (a, xs), p ->
+      let p', xs' = loop replace_in_block p xs in
+      (p', Blockquote (a, xs'))
+  | Heading (a, b, x), p ->
+      let p', x' = replace_in_inline p x in
+      (p', Heading (a, b, x'))
+  | Definition_list (a, dl), p ->
+      let def_list_loop p dl =
+        let p', dl' =
+          List.fold_left
+            (fun (p, ds) { term; defs } ->
+              let p', term' = replace_in_inline p term in
+              let p'', ds' = loop replace_in_inline p' defs in
+              (p'', { term = term'; defs = ds' } :: ds))
+            (p, []) dl
+        in
+        (p', List.rev dl')
       in
-      let i', dl', v' = loop1 i dl v in
-      (i', Definition_list (a, dl'), v')
-  | Table (a, headers, rows), v ->
-      let rec header_loop i hs v =
-        match hs with
-        | [] -> (i, [], v)
-        | (hdr, al) :: hs ->
-            let i', hdr', v' = replace_in_inline i v hdr in
-            let i'', hs', v'' = header_loop i' hs v' in
-            (i'', (hdr', al) :: hs', v'')
+      let p', dl' = def_list_loop p dl in
+      (p', Definition_list (a, dl'))
+  | Table (a, headers, rows), p ->
+      let header_loop p hs =
+        let p', hs' =
+          List.fold_left
+            (fun (p, hs) (hdr, al) ->
+              let p', hdr' = replace_in_inline p hdr in
+              (p', (hdr', al) :: hs))
+            (p, []) hs
+        in
+        (p', List.rev hs')
       in
-      let rec rows_loop i rows v =
-        match rows with
-        | [] -> (i, [], v)
-        | row :: rows ->
-            let i', row', v' = loop replace_in_inline i v row in
-            let i'', rows', v'' = rows_loop i' rows v' in
-            (i'', [ row' ] @ rows', v'')
+      let rows_loop p rows =
+        let p', rows' =
+          List.fold_left
+            (fun (p, rows) row ->
+              let p', row' = loop replace_in_inline p row in
+              (p', [ row' ] @ rows))
+            (p, []) rows
+        in
+        (p', List.rev rows')
       in
-      let i', hs', v' = header_loop i headers v in
-      let i'', rows', v'' = rows_loop i' rows v' in
-      (i'', Table (a, hs', rows'), v'')
-  | el, v -> (i, el, v)
+      let p', hs' = header_loop p headers in
+      let p'', rows' = rows_loop p' rows in
+      (p'', Table (a, hs', rows'))
+  | el, p -> (p, el)
 
-let replace_in_doc v md = loop replace_in_block 0 v md
+let replace_in_doc v md = loop replace_in_block (0, v) md
