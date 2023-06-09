@@ -76,5 +76,5 @@ let test_fix_links () =
          In_channel.(with_open_bin "test.md" In_channel.input_all)
      in
      let vs = List.combine ids new_links in
-     let _, transformed_md = Markdown.replace_in_doc vs md in
+     let _, transformed_md = Markdown.replace_links vs md in
      Markdown.extract_links transformed_md)

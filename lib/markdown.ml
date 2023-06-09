@@ -122,4 +122,4 @@ let rec replace_in_block p u =
       (p'', Table (a, hs', rows'))
   | el, p -> (p, el)
 
-let replace_in_doc v md = loop replace_in_block (0, v) md
+let replace_links v md = loop replace_in_block (0, v) md
