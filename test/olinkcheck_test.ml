@@ -109,6 +109,8 @@ let () =
             Markdown_test.test_text_without_links;
           Alcotest.test_case "Text with links" `Slow
             Markdown_test.test_text_with_links;
+          Alcotest.test_case "Test fix links" `Quick
+            Markdown_test.test_fix_links;
         ] );
       ( "extract-links-plaintext",
         [
