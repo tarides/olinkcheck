@@ -23,3 +23,22 @@ let test_text_with_links () =
         https://link2.com/)abc-def-123, https://www.link3.com/a?b=c) and so \
         on. However, only a part of http://www.link4.com/a?b=c&]-not-matched \
         is matched.")
+
+let test_fix_links () =
+  let new_links =
+    [
+      "http://newlink1.com";
+      "https://newlink2.com";
+      "http://www.newlink3.com/abc";
+    ]
+  in
+  Alcotest.(check (list string))
+    "same lists" new_links
+    (let test_text =
+       "This http://www.link1.com text contains   multiple https://link2.com \
+        links. like. http://link3.com."
+     in
+     let ids = [ 0; 1; 2 ] in
+     let vs = List.combine ids new_links in
+     let _, replaced_text = Plaintext.replace_links vs test_text in
+     Plaintext.extract_links replaced_text)

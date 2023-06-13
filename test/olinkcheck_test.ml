@@ -119,6 +119,8 @@ let () =
             Plaintext_test.test_text_without_links;
           Alcotest.test_case "Text with links" `Slow
             Plaintext_test.test_text_with_links;
+          Alcotest.test_case "Test fix links" `Quick
+            Plaintext_test.test_fix_links;
         ] );
       ( "link-status",
         [
