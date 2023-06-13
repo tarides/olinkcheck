@@ -102,7 +102,7 @@ let test_invalid_link () =
 let () =
   Alcotest.run "Olinkcheck"
     [
-      ( "extract-links-markdown",
+      ( "markdown",
         [
           Alcotest.test_case "Empty text" `Quick Markdown_test.test_empty_text;
           Alcotest.test_case "Text without links" `Quick
@@ -112,7 +112,7 @@ let () =
           Alcotest.test_case "Test fix links" `Quick
             Markdown_test.test_fix_links;
         ] );
-      ( "extract-links-plaintext",
+      ( "plaintext",
         [
           Alcotest.test_case "Empty text" `Quick Plaintext_test.test_empty_text;
           Alcotest.test_case "Text without links" `Quick
@@ -121,6 +121,15 @@ let () =
             Plaintext_test.test_text_with_links;
           Alcotest.test_case "Test fix links" `Quick
             Plaintext_test.test_fix_links;
+        ] );
+      ( "sexp",
+        [
+          Alcotest.test_case "Empty text" `Quick Sexp_test.test_empty_text;
+          Alcotest.test_case "Text without links" `Quick
+            Sexp_test.test_text_without_links;
+          Alcotest.test_case "Text with links" `Slow
+            Sexp_test.test_text_with_links;
+          Alcotest.test_case "Test fix links" `Quick Sexp_test.test_fix_links;
         ] );
       ( "link-status",
         [
