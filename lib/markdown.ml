@@ -3,7 +3,7 @@ open Omd
 let from_string = of_string
 
 let rec from_inline = function
-  | Link (_, link) -> [ link.destination ]
+  | Link (_, link) -> Plaintext.extract_links link.destination
   | Concat (_, x) -> List.concat_map from_inline x
   | Emph (_, x) | Strong (_, x) -> from_inline x
   | _ -> []
@@ -41,12 +41,10 @@ let loop f p xs =
 
 let rec replace_in_inline (i, v) u =
   match (u, v) with
-  | Link (a, { label; destination; title }), (n, new_dest) :: vs ->
-      let new_link, v =
-        if i = n then (Link (a, { label; destination = new_dest; title }), vs)
-        else (Link (a, { label; destination; title }), v)
-      in
-      ((i + 1, v), new_link)
+  | Link (a, { label; destination; title }), v ->
+      let (i', v'), new_dest = Plaintext.replace_links ~start:i v destination in
+      let new_link = Link (a, { label; destination = new_dest; title }) in
+      ((i', v'), new_link)
   | Emph (a, x), v ->
       let (i', v'), x' = replace_in_inline (i, v) x in
       ((i', v'), Emph (a, x'))

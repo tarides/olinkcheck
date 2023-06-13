@@ -8,7 +8,7 @@ let client server link =
   let status =
     match server link with
     | exception Invalid_argument _ -> (0, "Invalid Link")
-    | exception exn -> (0, Printexc.to_string exn)
+    | exception exn -> (1, "Client error: " ^ Printexc.to_string exn)
     | status -> (Hyper.status_to_int status, Hyper.status_to_string status)
   in
   status
