@@ -17,6 +17,7 @@ depends: [
   "cmdliner"
   "re"
   "sexplib"
+  "yaml"
   "odoc" {with-doc}
 ]
 build: [

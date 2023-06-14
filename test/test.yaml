@@ -1,0 +1,20 @@
+test: file
+this:
+  - test: file has multiple http://link1.com links
+  - like: link2, http://link2.com
+  - nested:
+    - http://link3.com
+    - e: 2.71
+    - also, http://link4.com
+    contents:
+      deeply = nested
+      link = http://link5.com
+      [brackets]
+      something = false
+      value = true
+  - back: here
+that:
+  is:
+    a:
+      - http://link6.com
+    b: 3.14

@@ -126,6 +126,15 @@ let () =
             Sexp_test.test_text_with_links;
           Alcotest.test_case "Test fix links" `Quick Sexp_test.test_fix_links;
         ] );
+      ( "yaml",
+        [
+          Alcotest.test_case "Empty text" `Quick Yml_test.test_empty_text;
+          Alcotest.test_case "Text without links" `Quick
+            Yml_test.test_text_without_links;
+          Alcotest.test_case "Text with links" `Slow
+            Yml_test.test_text_with_links;
+          Alcotest.test_case "Test fix links" `Quick Yml_test.test_fix_links;
+        ] );
       ( "link-status",
         [
           Alcotest.test_case "Valid link" `Quick test_valid_link;
