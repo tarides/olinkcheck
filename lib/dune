@@ -1,3 +1,3 @@
 (library
  (public_name olinkcheck)
- (libraries omd hyper lwt re))
+ (libraries omd hyper lwt re sexplib))

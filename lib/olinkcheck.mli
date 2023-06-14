@@ -9,3 +9,7 @@ end
 module Link : sig
   include module type of Link
 end
+
+module Sexp : sig
+  include module type of Sexp
+end

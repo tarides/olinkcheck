@@ -17,6 +17,7 @@ depends: [
   "lwt"
   "cmdliner"
   "re"
+  "sexplib"
   "odoc" {with-doc}
 ]
 build: [
