@@ -13,8 +13,7 @@ depends: [
   "dune" {>= "3.7"}
   "omd" {>= "2.0.0~alpha3"}
   "alcotest" {with-test}
-  "hyper"
-  "lwt"
+  "ezcurl-lwt"
   "cmdliner"
   "re"
   "sexplib"
