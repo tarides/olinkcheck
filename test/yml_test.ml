@@ -3,13 +3,13 @@ open Olinkcheck
 let test_empty_text () =
   Alcotest.(check (list string))
     "same lists" []
-    (Yml.extract_links (Yml.from_string ""))
+    (Yaml.extract_links (Yaml.from_string ""))
 
 let test_text_without_links () =
   Alcotest.(check (list string))
     "same lists" []
-    (Yml.extract_links
-       (Yml.from_string "this: yaml\ndoc: \n- does: not\n- contain: links"))
+    (Yaml.extract_links
+       (Yaml.from_string "this: yaml\ndoc: \n- does: not\n- contain: links"))
 
 let test_text_with_links () =
   Alcotest.(check (list string))
@@ -22,8 +22,8 @@ let test_text_with_links () =
       "http://link5.com";
       "http://link6.com";
     ]
-    (Yml.extract_links
-       (Yml.from_string In_channel.(with_open_bin "test.yaml" input_all)))
+    (Yaml.extract_links
+       (Yaml.from_string In_channel.(with_open_bin "test.yaml" input_all)))
 
 let test_fix_links () =
   let new_links =
@@ -40,8 +40,8 @@ let test_fix_links () =
     "same lists" new_links
     (let ids = [ 0; 1; 2; 3; 4; 5 ] in
      let md =
-       Yml.from_string In_channel.(with_open_bin "test.yaml" input_all)
+       Yaml.from_string In_channel.(with_open_bin "test.yaml" input_all)
      in
      let vs = List.combine ids new_links in
-     let _, transformed_yaml = Yml.replace_links vs md in
-     Yml.extract_links transformed_yaml)
+     let _, transformed_yaml = Yaml.replace_links vs md in
+     Yaml.extract_links transformed_yaml)
