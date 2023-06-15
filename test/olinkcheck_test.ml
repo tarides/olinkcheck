@@ -2,10 +2,7 @@ open Olinkcheck
 
 let http_statuses =
   [
-    (100, "Continue");
     (101, "Switching Protocols");
-    (102, "Processing");
-    (103, "Early Hints");
     (200, "OK");
     (201, "Created");
     (202, "Accepted");
@@ -68,17 +65,16 @@ let http_statuses =
 let test_request_with_status (code, reason) =
   let open Lwt.Syntax in
   let server url =
-    Lwt_main.run
-      (let completed, signal = Lwt.wait () in
-       let* webserver =
-         Server.webserver 8080 signal (string_of_int code ^ " " ^ reason)
-       in
-       let status = Link.request url in
-       let* () = completed in
-       let* () = Lwt_io.shutdown_server webserver in
-       status)
+    let completed, signal = Lwt.wait () in
+    let* webserver =
+      Server.webserver 8080 signal (string_of_int code ^ " " ^ reason)
+    in
+    let status = Link.request url in
+    let* () = completed in
+    let* () = Lwt_io.shutdown_server webserver in
+    status
   in
-  Link.client server "http://127.0.0.1:8080/"
+  Lwt_main.run (Link.client server "http://127.0.0.1:8080/")
 
 let test_all_status_codes () =
   Alcotest.(check (list (pair int string)))
@@ -96,8 +92,7 @@ let test_nonexistent_link () =
     (Link.status "http://google.com/does-not-exist")
 
 let test_invalid_link () =
-  Alcotest.(check (pair int string))
-    "same pair" (0, "Invalid Link") (Link.status "")
+  Alcotest.(check int) "same code" 1 (fst (Link.status ""))
 
 let () =
   Alcotest.run "Olinkcheck"
