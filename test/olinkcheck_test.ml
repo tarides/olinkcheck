@@ -156,6 +156,15 @@ let () =
             Yml_test.test_text_with_links;
           Alcotest.test_case "Test fix links" `Quick Yml_test.test_fix_links;
         ] );
+      ( "html",
+        [
+          Alcotest.test_case "Empty text" `Quick Html_test.test_empty_text;
+          Alcotest.test_case "Text without links" `Quick
+            Html_test.test_text_without_links;
+          Alcotest.test_case "Text with links" `Slow
+            Html_test.test_text_with_links;
+          Alcotest.test_case "Test fix links" `Quick Html_test.test_fix_links;
+        ] );
       ( "link-status",
         [
           Alcotest.test_case "Valid link" `Quick test_valid_link;
