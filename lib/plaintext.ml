@@ -1,3 +1,5 @@
+type t = string
+
 let from_string = Fun.id
 
 let url_regexp =

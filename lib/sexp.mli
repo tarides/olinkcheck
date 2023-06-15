@@ -1,8 +1,7 @@
-val from_string : string -> Sexplib0.Sexp.t list
-val extract_links : Sexplib0.Sexp.t list -> string list
+type t = Sexplib0.Sexp.t list
+
+val from_string : string -> t
+val extract_links : t -> string list
 
 val replace_links :
-  ?start:int ->
-  (int * string) list ->
-  Sexplib0.Sexp.t list ->
-  (int * (int * string) list) * Sexplib0.Sexp.t list
+  ?start:int -> (int * string) list -> t -> (int * (int * string) list) * t

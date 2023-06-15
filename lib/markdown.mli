@@ -1,7 +1,7 @@
-val from_string : string -> Omd.doc
-val extract_links : 'a Omd.block list -> string list
+type t = Omd.attributes Omd.block list
+
+val from_string : string -> t
+val extract_links : t -> string list
 
 val replace_links :
-  (int * string) list ->
-  'a Omd.block list ->
-  (int * (int * string) list) * 'a Omd.block list
+  ?start:int -> (int * string) list -> t -> (int * (int * string) list) * t
