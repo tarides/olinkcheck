@@ -13,3 +13,7 @@ end
 module Sexp : sig
   include module type of Sexp
 end
+
+module Yaml : sig
+  include module type of Yml
+end
