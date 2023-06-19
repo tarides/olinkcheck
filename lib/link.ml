@@ -72,3 +72,4 @@ let client server link =
   | Ok r -> Lwt.return (r.Ezcurl_lwt.code, reason r.Ezcurl_lwt.code)
 
 let status link = Lwt_main.run (client request link)
+let status_many links = Lwt_main.run (Lwt_list.map_p (client request) links)
