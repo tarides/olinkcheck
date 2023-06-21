@@ -22,8 +22,9 @@ let pretty_print_link_status_from_file ext from_string extract_links file =
   |> List.iter (fun file ->
          try
            file |> file_contents |> from_string |> extract_links
-           |>
-           (print_endline file;
-            List.iter (fun link ->
-                (link, Olinkcheck.Link.status link) |> pretty_print_link_status))
+           |> (fun links ->
+                print_endline file;
+                let statuses = Olinkcheck.Link.status_many links in
+                List.combine links statuses)
+           |> List.iter pretty_print_link_status
          with Sys_error _ -> ())
