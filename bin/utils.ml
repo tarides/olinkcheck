@@ -28,3 +28,26 @@ let pretty_print_link_status_from_file ext from_string extract_links file =
                 List.combine links statuses)
            |> List.iter pretty_print_link_status
          with Sys_error _ -> ())
+
+let annotate_in_str from_string extract_links str =
+  let links = str |> from_string |> extract_links in
+  let status = Olinkcheck.Link.status_many links in
+  List.combine status links
+  |> List.filter (fun ((code, _), _) -> code <> 200)
+  |> List.fold_left
+       (fun str ((code, reason), link) ->
+         let joined = link ^ " - " ^ string_of_int code ^ " " ^ reason in
+         let quoted = Re.Pcre.quote link in
+         let regex = Re.compile (Re.Pcre.re quoted) in
+         Re.replace_string ~all:true regex ~by:joined str)
+       str
+
+let annotate_in_file ext from_string extract_links file =
+  file |> files_with_ext ext
+  |> List.iter (fun file ->
+         try
+           file |> file_contents |> annotate_in_str from_string extract_links
+           |> fun new_str ->
+           let out_chan = open_out file in
+           Printf.fprintf out_chan "%s" new_str
+         with Sys_error _ -> ())
