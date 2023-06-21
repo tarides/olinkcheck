@@ -1,5 +1,7 @@
 open Omd
 
+type t = attributes block list
+
 let from_string = of_string
 
 let rec from_inline = function
@@ -120,4 +122,4 @@ let rec replace_in_block p u =
       (p'', Table (a, hs', rows'))
   | el, p -> (p, el)
 
-let replace_links v md = loop replace_in_block (0, v) md
+let replace_links ?(start = 0) v md = loop replace_in_block (start, v) md

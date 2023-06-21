@@ -1,5 +1,7 @@
 open Sexplib
 
+type t = Type.t list
+
 let from_string text =
   match Sexp.of_string_many text with sexp -> sexp | exception e -> raise e
 

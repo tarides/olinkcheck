@@ -1,5 +1,7 @@
 open Yaml
 
+type t = value
+
 let from_string = of_string_exn
 
 let extract_links yaml =

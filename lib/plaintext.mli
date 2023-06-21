@@ -1,8 +1,7 @@
-val from_string : string -> string
-val extract_links : string -> string list
+type t = string
+
+val from_string : string -> t
+val extract_links : t -> string list
 
 val replace_links :
-  ?start:int ->
-  (int * string) list ->
-  string ->
-  (int * (int * string) list) * string
+  ?start:int -> (int * string) list -> t -> (int * (int * string) list) * t
