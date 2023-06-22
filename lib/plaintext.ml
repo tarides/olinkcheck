@@ -1,6 +1,7 @@
 type t = string
 
 let from_string = Fun.id
+let link_delimiter = ""
 
 let url_regexp =
   Re.compile
