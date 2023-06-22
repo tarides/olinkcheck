@@ -72,7 +72,7 @@ let test_annotate_in_str () =
   in
   let annotated_md =
     "[link1](http://www.google.com) and \
-     [link2](http://www.google.com/does-not-exist - 404 Not Found), but not \
+     [link2](http://www.google.com/does-not-exist - [404 Not Found]) but not \
      http://www.google.com/does-not-exist-too"
   in
   Alcotest.(check string)

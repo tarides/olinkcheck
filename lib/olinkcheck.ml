@@ -25,13 +25,15 @@ module Parser (P : ParserType) = struct
     |> List.fold_left
          (fun str ((code, reason), link) ->
            let replace_by =
-             link ^ " - " ^ string_of_int code ^ " " ^ reason
+             link ^ " - [" ^ string_of_int code ^ " " ^ reason ^ "]"
              |> Fun.flip ( ^ ) link_delimiter
            in
            let to_replace =
              link
              |> Fun.flip ( ^ ) link_delimiter
-             |> Re.Pcre.quote |> Re.Pcre.re |> Re.compile
+             |> Re.Pcre.quote
+             |> Fun.flip ( ^ ) "(\\s|\\.|,|;)"
+             |> Re.Pcre.re |> Re.compile
            in
            Re.replace_string ~all:true to_replace ~by:replace_by str)
          str
