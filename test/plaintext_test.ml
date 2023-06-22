@@ -42,3 +42,13 @@ let test_fix_links () =
      let vs = List.combine ids new_links in
      let _, replaced_text = Plaintext.replace_links vs test_text in
      Plaintext.extract_links replaced_text)
+
+let test_annotate_in_str () =
+  let str = "http://www.google.com and http://www.google.com/does-not-exist" in
+  let annotated_str =
+    "http://www.google.com and http://www.google.com/does-not-exist - 404 Not \
+     Found"
+  in
+  Alcotest.(check string)
+    "same string" annotated_str
+    (Plaintext.annotate_in_str str)
