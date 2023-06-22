@@ -49,5 +49,6 @@ let annotate_in_file ext from_string extract_links file =
            file |> file_contents |> annotate_in_str from_string extract_links
            |> fun new_str ->
            let out_chan = open_out file in
-           Printf.fprintf out_chan "%s" new_str
+           Printf.fprintf out_chan "%s" new_str;
+           close_out out_chan
          with Sys_error _ -> ())
