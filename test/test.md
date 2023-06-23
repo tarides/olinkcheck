@@ -19,9 +19,8 @@ Links may occur in multiple places. [url1](http://link1.com).
 First definition
 : this is the definition of the first term with [url10](http://link10.com)
 
-Second [url11](http://link11.com) definition
+Second [url11](http://link11.com - [1 Client error: SSL peer certificate or SSH remote key was not OK])definition
 : second term's definition
 : the link is in the term
 
-##section2[url12](http://link12.com)
-_Emphasised text: [url13](http://link13.com)_
+##section2[url12](http://link12.com - [1 Client error: Timeout was reached])_Emphasised text: [url13](http://link13.com)_
