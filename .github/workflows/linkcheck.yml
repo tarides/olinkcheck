@@ -1,9 +1,9 @@
 name: Check broken links
 
 on:
-  # push:
-  #   branches: [main]
-  workflow_dispatch:
+  push:
+    branches: [test-pr]
+  # workflow_dispatch:
   # schedule:
   #   - cron: 0 1 * * MON
 
