@@ -1,0 +1,53 @@
+name: Check broken links
+
+on:
+  # push:
+  #   branches: [main]
+  workflow_dispatch:
+  # schedule:
+  #   - cron: 0 1 * * MON
+
+jobs:
+  linkcheck:
+    name: Check links
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+        ocaml-compiler:
+          - ocaml-base-compiler.4.14.1
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Use OCaml ${{ matrix.ocaml-compiler }}
+        uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+          dune-cache: ${{ matrix.os != 'macos-latest' }}
+          opam-repositories: |
+            pin: git+https://github.com/ocaml/opam-repository#9cf27a6683dc4e56ccf7e35c008198828bd5c267
+          opam-disable-sandboxing: true
+
+      - name: Install opam dependencies
+        run: opam install --deps-only --with-test .
+
+      - name: Build olinkcheck
+        run: |
+          opam exec -- dune build
+
+      - name: Annotate broken links
+        run: |
+          opam exec -- dune exec -- bin/main.exe --annotate-in-file md test
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          title: 'Check broken links'
+          add-paths: |
+            test
