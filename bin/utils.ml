@@ -21,7 +21,9 @@ let rec files_with_ext ext file =
 
 let read_exclude_list file =
   match file with
-  | Some file -> file_contents file |> String.split_on_char '\n'
+  | Some file ->
+      file_contents file |> String.split_on_char '\n'
+      |> List.filter (fun pat -> pat <> "")
   | None -> []
 
 let pretty_print_link_status_from_file verbose exclude_list ext from_string
