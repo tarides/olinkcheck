@@ -28,14 +28,15 @@ module Parser (P : ParserType) = struct
     in
     aux (Re.split_full regexp str) [] 0
 
-  let annotate_in_str str =
+  let annotate_in_str verbose str =
     (*find the links*)
     let links = str |> from_string |> extract_links in
     (*get their status*)
     let status = Link.status_many links in
     List.combine status links
-    (*remove 200 OK links*)
-    |> List.filter (fun ((code, _), _) -> code <> 200)
+    (*remove 200 OK links if needed*)
+    |> (if not verbose then List.filter (fun ((code, _), _) -> code <> 200)
+        else Fun.id)
     (*sort by decreasing order of length of strings*)
     |> List.sort (fun ((_, _), linka) ((_, _), linkb) ->
            String.length linkb - String.length linka)

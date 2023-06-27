@@ -54,4 +54,17 @@ let test_annotate_in_str () =
   in
   Alcotest.(check string)
     "same string" annotated_str
-    (fst (Plaintext.annotate_in_str str))
+    (fst (Plaintext.annotate_in_str false str))
+
+let test_verbose_annotate_in_str () =
+  let str =
+    "http://www.google.com, http://www.google.com/does and \
+     http://www.google.com/does-not-exist."
+  in
+  let annotated_str =
+    "http://www.google.com - [200 OK], http://www.google.com/does - [404 Not \
+     Found] and http://www.google.com/does-not-exist - [404 Not Found]."
+  in
+  Alcotest.(check string)
+    "same string" annotated_str
+    (fst (Plaintext.annotate_in_str true str))

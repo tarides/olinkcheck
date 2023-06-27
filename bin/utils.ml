@@ -32,11 +32,12 @@ let pretty_print_link_status_from_file verbose ext from_string extract_links
            |> List.iter (pretty_print_link_status verbose)
          with Sys_error _ -> ())
 
-let annotate_in_file ext annotate_in_str file =
+let annotate_in_file verbose ext annotate_in_str file =
   file |> files_with_ext ext
   |> List.iter (fun file ->
          try
-           file |> file_contents |> annotate_in_str |> fst |> fun new_str ->
+           file |> file_contents |> annotate_in_str verbose |> fst
+           |> fun new_str ->
            let out_chan = open_out file in
            Printf.fprintf out_chan "%s" new_str;
            close_out out_chan

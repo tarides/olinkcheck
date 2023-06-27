@@ -25,7 +25,7 @@ let olinkcheck annotate_in_file verbose format file =
   | Markdown ->
       `Ok
         (if annotate_in_file then
-           Markdown.(Utils.annotate_in_file ".md" annotate_in_str file)
+           Markdown.(Utils.annotate_in_file verbose ".md" annotate_in_str file)
          else
            Markdown.(
              Utils.pretty_print_link_status_from_file verbose ".md" from_string
@@ -33,7 +33,8 @@ let olinkcheck annotate_in_file verbose format file =
   | Plaintext ->
       `Ok
         (if annotate_in_file then
-           Plaintext.(Utils.annotate_in_file ".txt" annotate_in_str file)
+           Plaintext.(
+             Utils.annotate_in_file verbose ".txt" annotate_in_str file)
          else
            Plaintext.(
              Utils.pretty_print_link_status_from_file verbose ".txt" from_string

@@ -77,4 +77,19 @@ let test_annotate_in_str () =
   in
   Alcotest.(check string)
     "same string" annotated_md
-    (fst (Markdown.annotate_in_str md))
+    (fst (Markdown.annotate_in_str false md))
+
+let test_verbose_annotate_in_str () =
+  let md =
+    "[link1](http://www.google.com) and \
+     [link2](http://www.google.com/does-not-exist), but not \
+     http://www.google.com/does-not-exist-too"
+  in
+  let annotated_md =
+    "[link1](http://www.google.com - [200 OK]) and \
+     [link2](http://www.google.com/does-not-exist - [404 Not Found]), but not \
+     http://www.google.com/does-not-exist-too"
+  in
+  Alcotest.(check string)
+    "same string" annotated_md
+    (fst (Markdown.annotate_in_str true md))
