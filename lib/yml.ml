@@ -3,6 +3,7 @@ open Yaml
 type t = value
 
 let from_string = of_string_exn
+let link_delimiter = ""
 
 let extract_links yaml =
   let rec loop = function

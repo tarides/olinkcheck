@@ -16,23 +16,35 @@ let verbose =
   let doc = "Flag to report links with status 200 OK" in
   Arg.(value & flag & info [ "verbose" ] ~doc)
 
-let olinkcheck verbose format file =
+let annotate_in_file =
+  let doc = "Annotate broken links in the file" in
+  Arg.(value & flag & info [ "annotate-in-file" ] ~doc)
+
+let olinkcheck annotate_in_file verbose format file =
   match format with
   | Markdown ->
       `Ok
-        Markdown.(
-          Utils.pretty_print_link_status_from_file verbose ".md" from_string
-            extract_links file)
+        (if annotate_in_file then
+           Markdown.(Utils.annotate_in_file verbose ".md" annotate_in_str file)
+         else
+           Markdown.(
+             Utils.pretty_print_link_status_from_file verbose ".md" from_string
+               extract_links file))
   | Plaintext ->
       `Ok
-        Plaintext.(
-          Utils.pretty_print_link_status_from_file verbose ".txt" from_string
-            extract_links file)
+        (if annotate_in_file then
+           Plaintext.(
+             Utils.annotate_in_file verbose ".txt" annotate_in_str file)
+         else
+           Plaintext.(
+             Utils.pretty_print_link_status_from_file verbose ".txt" from_string
+               extract_links file))
 
 let cmd =
   let doc = "Check the status of links in a file." in
   let info = Cmd.info "olinkcheck" ~doc in
-  Cmd.v info Term.(ret (const olinkcheck $ verbose $ format $ file))
+  Cmd.v info
+    Term.(ret (const olinkcheck $ annotate_in_file $ verbose $ format $ file))
 
 let main = exit (Cmd.eval cmd)
 let () = main

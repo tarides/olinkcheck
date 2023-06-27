@@ -106,6 +106,10 @@ let () =
             Markdown_test.test_text_with_links;
           Alcotest.test_case "Test fix links" `Quick
             Markdown_test.test_fix_links;
+          Alcotest.test_case "Annotate broken links" `Quick
+            Markdown_test.test_annotate_in_str;
+          Alcotest.test_case "Verbose annotate broken links" `Quick
+            Markdown_test.test_verbose_annotate_in_str;
         ] );
       ( "plaintext",
         [
@@ -116,6 +120,10 @@ let () =
             Plaintext_test.test_text_with_links;
           Alcotest.test_case "Test fix links" `Quick
             Plaintext_test.test_fix_links;
+          Alcotest.test_case "Annotate broken links" `Quick
+            Plaintext_test.test_annotate_in_str;
+          Alcotest.test_case "Verbose annotate broken links" `Quick
+            Plaintext_test.test_verbose_annotate_in_str;
         ] );
       ( "sexp",
         [
