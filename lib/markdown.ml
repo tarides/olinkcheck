@@ -3,6 +3,7 @@ open Omd
 type t = attributes block list
 
 let from_string = of_string
+let link_delimiter = ")"
 
 let rec from_inline = function
   | Link (_, link) -> Plaintext.extract_links link.destination

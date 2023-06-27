@@ -63,3 +63,18 @@ let test_fix_links () =
      let vs = List.combine ids new_links in
      let _, transformed_md = Markdown.replace_links vs md in
      Markdown.extract_links transformed_md)
+
+let test_annotate_in_str () =
+  let md =
+    "[link1](http://www.google.com) and \
+     [link2](http://www.google.com/does-not-exist), but not \
+     http://www.google.com/does-not-exist-too"
+  in
+  let annotated_md =
+    "[link1](http://www.google.com) and \
+     [link2](http://www.google.com/does-not-exist - [404 Not Found]), but not \
+     http://www.google.com/does-not-exist-too"
+  in
+  Alcotest.(check string)
+    "same string" annotated_md
+    (fst (Markdown.annotate_in_str md))
