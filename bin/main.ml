@@ -21,7 +21,7 @@ let annotate_in_file =
   Arg.(value & flag & info [ "annotate-in-file" ] ~doc)
 
 let exclude_list =
-  let doc = "URL patterns to avoid querying" in
+  let doc = "File containing URL patterns to avoid querying" in
   Arg.(
     value
     & opt (some file) None

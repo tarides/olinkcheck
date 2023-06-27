@@ -94,6 +94,19 @@ let test_nonexistent_link () =
 let test_invalid_link () =
   Alcotest.(check int) "same code" 1 (fst (Link.status ""))
 
+let test_exclude_patterns () =
+  Alcotest.(check (list string))
+    "same lists"
+    [ "http://link2.com"; "http://link3.com" ]
+    (exclude_patterns
+       [ "http://link1.com"; "http://link2.com/a" ]
+       [
+         "http://link1.com/a";
+         "http://link2.com";
+         "http://link2.com/ab";
+         "http://link3.com";
+       ])
+
 let () =
   Alcotest.run "Olinkcheck"
     [
@@ -150,4 +163,7 @@ let () =
           Alcotest.test_case "Non-existent link" `Quick test_nonexistent_link;
           Alcotest.test_case "All status codes" `Quick test_all_status_codes;
         ] );
+      ( "utils",
+        [ Alcotest.test_case "Exclude patterns" `Quick test_exclude_patterns ]
+      );
     ]

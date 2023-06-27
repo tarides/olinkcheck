@@ -9,24 +9,15 @@ module type ParserType = sig
     ?start:int -> (int * string) list -> t -> (int * (int * string) list) * t
 end
 
+include Utils
+
 module Parser (P : ParserType) = struct
   type t = P.t
 
+  let from_string = P.from_string
   let link_delimiter = P.link_delimiter
+  let extract_links = P.extract_links
   let replace_links = P.replace_links
-
-  let extract_links exclude_list str =
-    let exclude_regexps =
-      List.map
-        (fun pattern -> pattern |> Re.Pcre.quote |> Re.Pcre.re |> Re.compile)
-        exclude_list
-    in
-    (*find the links and exclude based on the exclude list*)
-    str |> P.from_string |> P.extract_links
-    |> List.filter (fun link ->
-           List.fold_left
-             (fun ok regexp -> ok && not (Re.execp regexp link))
-             true exclude_regexps)
 
   let match_positions regexp str =
     let rec aux split_list pos_list cur_pos =
@@ -40,7 +31,10 @@ module Parser (P : ParserType) = struct
     aux (Re.split_full regexp str) [] 0
 
   let annotate_in_str verbose exclude_list str =
-    let links = extract_links exclude_list str in
+    (*find the links and exclude based on the exclude list*)
+    let links =
+      str |> from_string |> extract_links |> exclude_patterns exclude_list
+    in
     (*get their status*)
     let status = Link.status_many links in
     List.combine status links

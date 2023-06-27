@@ -26,11 +26,12 @@ let read_exclude_list file =
 
 let pretty_print_link_status_from_file verbose exclude_list ext from_string
     extract_links file =
-  let _exclude_list = read_exclude_list exclude_list in
+  let exclude_list = read_exclude_list exclude_list in
   file |> files_with_ext ext
   |> List.iter (fun file ->
          try
            file |> file_contents |> from_string |> extract_links
+           |> Olinkcheck.exclude_patterns exclude_list
            |> (fun links ->
                 print_endline file;
                 let statuses = Olinkcheck.Link.status_many links in
