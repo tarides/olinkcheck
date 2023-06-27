@@ -77,7 +77,7 @@ let test_annotate_in_str () =
   in
   Alcotest.(check string)
     "same string" annotated_md
-    (fst (Markdown.annotate_in_str false md))
+    (fst (Markdown.annotate_in_str false [] md))
 
 let test_verbose_annotate_in_str () =
   let md =
@@ -92,4 +92,4 @@ let test_verbose_annotate_in_str () =
   in
   Alcotest.(check string)
     "same string" annotated_md
-    (fst (Markdown.annotate_in_str true md))
+    (fst (Markdown.annotate_in_str true [] md))
