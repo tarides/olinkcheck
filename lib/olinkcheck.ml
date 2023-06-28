@@ -9,6 +9,8 @@ module type ParserType = sig
     ?start:int -> (int * string) list -> t -> (int * (int * string) list) * t
 end
 
+include Utils
+
 module Parser (P : ParserType) = struct
   type t = P.t
 
@@ -28,9 +30,11 @@ module Parser (P : ParserType) = struct
     in
     aux (Re.split_full regexp str) [] 0
 
-  let annotate_in_str verbose str =
-    (*find the links*)
-    let links = str |> from_string |> extract_links in
+  let annotate_in_str verbose exclude_list str =
+    (*find the links and exclude based on the exclude list*)
+    let links =
+      str |> from_string |> extract_links |> exclude_patterns exclude_list
+    in
     (*get their status*)
     let status = Link.status_many links in
     List.combine status links

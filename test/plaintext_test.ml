@@ -54,7 +54,7 @@ let test_annotate_in_str () =
   in
   Alcotest.(check string)
     "same string" annotated_str
-    (fst (Plaintext.annotate_in_str false str))
+    (fst (Plaintext.annotate_in_str false [] str))
 
 let test_verbose_annotate_in_str () =
   let str =
@@ -67,4 +67,4 @@ let test_verbose_annotate_in_str () =
   in
   Alcotest.(check string)
     "same string" annotated_str
-    (fst (Plaintext.annotate_in_str true str))
+    (fst (Plaintext.annotate_in_str true [] str))
