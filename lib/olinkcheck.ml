@@ -89,4 +89,5 @@ module Plaintext = Parser (Plaintext)
 module Markdown = Parser (Markdown)
 module Sexp = Parser (Sexp)
 module Yaml = Parser (Yml)
+module Html = Parser (Html)
 module Link = Link

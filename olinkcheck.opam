@@ -18,6 +18,7 @@ depends: [
   "re"
   "sexplib"
   "yaml"
+  "lambdasoup"
   "odoc" {with-doc}
 ]
 build: [
