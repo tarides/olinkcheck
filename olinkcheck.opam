@@ -9,14 +9,14 @@ license: "ISC"
 homepage: "https://github.com/tarides/olinkcheck"
 bug-reports: "https://github.com/tarides/olinkcheck/issues"
 depends: [
-  "ocaml"
+  "ocaml" {>= "4.08.0"}
   "dune" {>= "3.7"}
   "omd" {>= "2.0.0~alpha3"}
   "alcotest" {with-test}
   "ezcurl-lwt"
   "cmdliner"
   "re"
-  "sexplib"
+  "parsexp"
   "yaml"
   "lambdasoup"
   "odoc" {with-doc}

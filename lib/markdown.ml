@@ -7,7 +7,7 @@ let link_delimiter = ")"
 
 let rec from_inline = function
   | Link (_, link) -> Plaintext.extract_links link.destination
-  | Concat (_, x) -> List.concat_map from_inline x
+  | Concat (_, x) -> List.concat @@ List.map from_inline x
   | Emph (_, x) | Strong (_, x) -> from_inline x
   | _ -> []
 
@@ -15,18 +15,25 @@ let extract_links md =
   let rec loop = function
     | [] -> []
     | Paragraph (_, x) :: tl -> from_inline x @ loop tl
-    | List (_, _, _, bl) :: tl -> List.concat_map loop bl @ loop tl
+    | List (_, _, _, bl) :: tl -> List.concat (List.map loop bl) @ loop tl
     | Blockquote (_, bl) :: tl -> loop bl @ loop tl
     | Heading (_, _, x) :: tl -> from_inline x @ loop tl
     | Definition_list (_, dl) :: tl ->
-        List.concat_map
-          (fun { term; defs } ->
-            from_inline term @ List.concat_map from_inline defs)
-          dl
+        List.concat
+          (List.map
+             (fun { term; defs } ->
+               from_inline term @ List.concat @@ List.map from_inline defs)
+             dl)
         @ loop tl
     | Table (_, headers, rows) :: tl ->
-        let header_links = List.concat_map from_inline (List.map fst headers) in
-        let body_links = List.concat_map (List.concat_map from_inline) rows in
+        let header_links =
+          List.concat @@ List.rev_map from_inline (List.rev_map fst headers)
+        in
+        let body_links =
+          rows
+          |> List.rev_map (List.rev_map from_inline)
+          |> List.concat |> List.concat
+        in
         (header_links @ body_links) @ loop tl
     | _ :: tl -> loop tl
   in

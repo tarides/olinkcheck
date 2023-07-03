@@ -1,4 +1,4 @@
-let file_contents file = In_channel.(with_open_bin file input_all)
+open Olinkcheck
 
 let pretty_print_link_status verbose (link, (status_code, status_string)) =
   if (not (verbose || status_code = 200)) || verbose then
@@ -14,7 +14,7 @@ let rec files_with_ext ext file =
       |> List.map (Filename.concat file)
       |> List.partition Sys.is_directory
       |> fun (dirs, non_dirs) ->
-      with_ext ext non_dirs @ List.concat_map (files_with_ext ext) dirs
+      with_ext ext non_dirs @ List.concat @@ List.map (files_with_ext ext) dirs
     with Sys_error _ -> []
   else if Filename.extension file = ext then [ file ]
   else []
@@ -22,7 +22,7 @@ let rec files_with_ext ext file =
 let read_exclude_list file =
   match file with
   | Some file ->
-      file_contents file |> String.split_on_char '\n'
+      read_bin file |> String.split_on_char '\n'
       |> List.filter (fun pat -> pat <> "")
   | None -> []
 
@@ -32,11 +32,11 @@ let pretty_print_link_status_from_file verbose exclude_list ext from_string
   file |> files_with_ext ext
   |> List.iter (fun file ->
          try
-           file |> file_contents |> from_string |> extract_links
-           |> Olinkcheck.exclude_patterns exclude_list
+           file |> read_bin |> from_string |> extract_links
+           |> exclude_patterns exclude_list
            |> (fun links ->
                 print_endline file;
-                let statuses = Olinkcheck.Link.status_many links in
+                let statuses = Link.status_many links in
                 List.combine links statuses)
            |> List.iter (pretty_print_link_status verbose)
          with Sys_error _ -> ())
@@ -46,7 +46,7 @@ let annotate_in_file verbose exclude_list ext annotate_in_str file =
   file |> files_with_ext ext
   |> List.iter (fun file ->
          try
-           file |> file_contents |> annotate_in_str verbose exclude_list |> fst
+           file |> read_bin |> annotate_in_str verbose exclude_list |> fst
            |> fun new_str ->
            let out_chan = open_out file in
            Printf.fprintf out_chan "%s" new_str;

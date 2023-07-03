@@ -23,8 +23,8 @@ let test_text_with_links () =
       "http://link4.com";
       "http://link5.com";
     ]
-    (Html.extract_links
-       (Html.from_string In_channel.(with_open_bin "test.html" input_all)))
+    ("test.html" |> Olinkcheck.read_bin |> Html.from_string
+   |> Html.extract_links)
 
 let test_fix_links () =
   let new_links =
@@ -39,9 +39,7 @@ let test_fix_links () =
   Alcotest.(check (list string))
     "same lists" new_links
     (let ids = [ 0; 1; 2; 3; 4 ] in
-     let html =
-       Html.from_string In_channel.(with_open_bin "test.html" input_all)
-     in
+     let html = Html.from_string @@ Olinkcheck.read_bin "test.html" in
      let vs = List.combine ids new_links in
      let _, transformed_html = Html.replace_links vs html in
      Html.extract_links transformed_html)

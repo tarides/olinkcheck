@@ -22,8 +22,8 @@ let test_text_with_links () =
       "http://link5.com";
       "http://link6.com";
     ]
-    (Yaml.extract_links
-       (Yaml.from_string In_channel.(with_open_bin "test.yaml" input_all)))
+    ("test.yaml" |> Olinkcheck.read_bin |> Yaml.from_string
+   |> Yaml.extract_links)
 
 let test_fix_links () =
   let new_links =
@@ -39,9 +39,7 @@ let test_fix_links () =
   Alcotest.(check (list string))
     "same lists" new_links
     (let ids = [ 0; 1; 2; 3; 4; 5 ] in
-     let md =
-       Yaml.from_string In_channel.(with_open_bin "test.yaml" input_all)
-     in
+     let md = Yaml.from_string @@ Olinkcheck.read_bin "test.yaml" in
      let vs = List.combine ids new_links in
      let _, transformed_yaml = Yaml.replace_links vs md in
      Yaml.extract_links transformed_yaml)

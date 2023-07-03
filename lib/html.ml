@@ -7,8 +7,9 @@ let link_delimiter = ""
 
 let extract_links html =
   html |> select "a[href]" |> to_list
-  |> List.map (fun a -> R.attribute "href" a)
-  |> List.concat_map Plaintext.extract_links
+  |> List.rev_map (fun a -> R.attribute "href" a)
+  |> List.rev_map Plaintext.extract_links
+  |> List.concat
 
 let replace_links ?(start = 0) vs html =
   html |> select "a[href]"
