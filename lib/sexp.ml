@@ -1,9 +1,11 @@
-open Sexplib
+open Sexplib0
 
-type t = Type.t list
+type t = Sexp.t list
+
+let of_string_many = Parsexp.Many.parse_string_exn
 
 let from_string text =
-  match Sexp.of_string_many text with sexp -> sexp | exception e -> raise e
+  match of_string_many text with sexp -> sexp | exception e -> raise e
 
 let link_delimiter = ""
 

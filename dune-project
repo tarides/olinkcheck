@@ -17,4 +17,4 @@
  (name olinkcheck)
  (synopsis "A tool to detect broken URLs in markdown")
  (description "This tool finds all URLs in markdown files and checks if they are valid by pinging them.")
- (depends ocaml dune (omd (>= 2.0.0~alpha3)) (alcotest :with-test) ezcurl-lwt cmdliner re sexplib yaml lambdasoup))
+ (depends (ocaml (>= 4.08.0)) dune (omd (>= 2.0.0~alpha3)) (alcotest :with-test) ezcurl-lwt cmdliner re parsexp yaml lambdasoup))

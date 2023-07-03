@@ -8,9 +8,10 @@ let link_delimiter = ""
 let extract_links yaml =
   let rec loop = function
     | `String x -> Plaintext.extract_links x
-    | `A x -> List.concat_map loop x
+    | `A x -> List.concat @@ List.map loop x
     | `O svl ->
-        List.concat_map (fun (k, v) -> Plaintext.extract_links k @ loop v) svl
+        List.concat
+        @@ List.map (fun (k, v) -> Plaintext.extract_links k @ loop v) svl
     | _ -> []
   in
   loop yaml
