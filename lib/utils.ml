@@ -8,6 +8,27 @@ let starts_with ~prefix s =
   in
   len_s >= len_pre && aux 0
 
+let ends_with ~suffix s =
+  let len_s = String.length s and len_suf = String.length suffix in
+  let diff = len_s - len_suf in
+  let rec aux i =
+    if i = len_suf then true
+    else if String.get s (diff + i) <> String.get suffix i then false
+    else aux (i + 1)
+  in
+  diff >= 0 && aux 0
+
+let trim_trailing_whitespace s =
+  let has_trailing_ws s =
+    ends_with ~suffix:"%20" s || ends_with ~suffix:"%0A" s
+    || ends_with ~suffix:"%09" s || ends_with ~suffix:"%0B" s
+    || ends_with ~suffix:"%0D" s
+  in
+  let rec loop s =
+    if has_trailing_ws s then loop (String.sub s 0 (String.length s - 3)) else s
+  in
+  loop s
+
 let exclude_patterns exclude_list links =
   links
   |> List.filter (fun link ->
