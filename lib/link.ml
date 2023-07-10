@@ -64,9 +64,15 @@ let reason = function
   | 511 -> "Network Authentication Required"
   | _ -> "Invalid"
 
+let fail_with_timeout () =
+  let open Lwt.Syntax in
+  let* () = Lwt_unix.sleep 300. in
+  Lwt.return
+    (Error (Curl.curlCode_of_int 28 |> Option.get, "Request timed out."))
+
 let client server link =
   let open Lwt.Syntax in
-  let* status = server link in
+  let* status = Lwt.pick [ server link; fail_with_timeout () ] in
   match status with
   | Error (_, e) -> Lwt.return (1, "Client error: " ^ e)
   | Ok r -> Lwt.return (r.Ezcurl_lwt.code, reason r.Ezcurl_lwt.code)
