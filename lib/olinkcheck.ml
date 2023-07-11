@@ -11,7 +11,21 @@ end
 
 include Utils
 
-module Parser (P : ParserType) = struct
+module type ParserWithAnnotate = sig
+  type t
+
+  val from_string : string -> t
+  val link_delimiter : string
+  val extract_links : t -> string list
+
+  val replace_links :
+    ?start:int -> (int * string) list -> t -> (int * (int * string) list) * t
+
+  val match_positions : Re.re -> string -> int list
+  val annotate_in_str : bool -> string list -> string -> string * int list
+end
+
+module Parser (P : ParserType) : ParserWithAnnotate = struct
   type t = P.t
 
   let from_string = P.from_string
@@ -83,6 +97,92 @@ module Parser (P : ParserType) = struct
            in
            (annotated_str, List.sort compare (matched_now @ matched_already)))
          (str, [])
+end
+
+module type ParserPair = sig
+  module P1 : ParserWithAnnotate
+  module P2 : ParserWithAnnotate
+
+  type content = A of string | B of string
+
+  val split : string -> content list
+  val combine : content list -> string
+end
+
+module type PairParser = sig
+  type t
+
+  val from_string : string -> t list
+  val extract_links : t list -> string list
+
+  val replace_links :
+    ?start:int ->
+    (int * string) list ->
+    t list ->
+    (int * (int * string) list) * t list
+
+  val annotate_in_str : bool -> string list -> string -> string * int list
+end
+
+module MakePairParser (P : ParserPair) : PairParser = struct
+  type t = T1 of P.P1.t | T2 of P.P2.t
+
+  let from_string str =
+    let splits = P.split str in
+    let rec loop splits =
+      match splits with
+      | [] -> []
+      | P.(A x) :: tl -> T1 (P.P1.from_string x) :: loop tl
+      | P.(B x) :: tl -> T2 (P.P2.from_string x) :: loop tl
+    in
+    loop splits
+
+  let extract_links ts =
+    let rec loop ts =
+      match ts with
+      | [] -> []
+      | T1 t :: tl -> P.P1.extract_links t @ loop tl
+      | T2 t :: tl -> P.P2.extract_links t @ loop tl
+    in
+    loop ts
+
+  let replace_links ?(start = 0) v ts =
+    let p', ts' =
+      List.fold_left
+        (fun ((start, v), ts) t ->
+          let (start', v'), t' =
+            match t with
+            | T1 x ->
+                let c, d = P.P1.replace_links ~start v x in
+                (c, T1 d)
+            | T2 x ->
+                let c, d = P.P2.replace_links ~start v x in
+                (c, T2 d)
+          in
+          ((start', v'), t' :: ts))
+        ((start, v), [])
+        ts
+    in
+    (p', List.rev ts')
+
+  let annotate_in_str verbose exclude_list str =
+    let splits = P.split str in
+    let annotated_splits, positions =
+      List.fold_left
+        (fun (asps, pos) sp ->
+          let asp', pos' =
+            match sp with
+            | P.(A x) ->
+                let c, d = P.P1.annotate_in_str verbose exclude_list x in
+                (P.(A c), d)
+            | P.(B x) ->
+                let c, d = P.P2.annotate_in_str verbose exclude_list x in
+                (P.(B c), d)
+          in
+          (asp' :: asps, pos' @ pos))
+        ([], []) splits
+    in
+    (P.combine (List.rev annotated_splits), positions)
 end
 
 module Plaintext = Parser (Plaintext)
