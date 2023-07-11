@@ -1,4 +1,4 @@
-module type ParserType = sig
+module type BasicParser = sig
   type t
 
   val from_string : string -> t
@@ -11,21 +11,19 @@ end
 
 include Utils
 
-module type ParserWithAnnotate = sig
+module type Parser = sig
   type t
 
   val from_string : string -> t
-  val link_delimiter : string
   val extract_links : t -> string list
 
   val replace_links :
     ?start:int -> (int * string) list -> t -> (int * (int * string) list) * t
 
-  val match_positions : Re.re -> string -> int list
   val annotate_in_str : bool -> string list -> string -> string * int list
 end
 
-module Parser (P : ParserType) : ParserWithAnnotate = struct
+module MakeParser (P : BasicParser) : Parser = struct
   type t = P.t
 
   let from_string = P.from_string
@@ -100,8 +98,8 @@ module Parser (P : ParserType) : ParserWithAnnotate = struct
 end
 
 module type ParserPair = sig
-  module P1 : ParserWithAnnotate
-  module P2 : ParserWithAnnotate
+  module P1 : Parser
+  module P2 : Parser
 
   type content = A of string | B of string
 
@@ -109,23 +107,9 @@ module type ParserPair = sig
   val combine : content list -> string
 end
 
-module type PairParser = sig
-  type t
-
-  val from_string : string -> t list
-  val extract_links : t list -> string list
-
-  val replace_links :
-    ?start:int ->
-    (int * string) list ->
-    t list ->
-    (int * (int * string) list) * t list
-
-  val annotate_in_str : bool -> string list -> string -> string * int list
-end
-
-module MakePairParser (P : ParserPair) : PairParser = struct
-  type t = T1 of P.P1.t | T2 of P.P2.t
+module MakePairParser (P : ParserPair) : Parser = struct
+  type ast = T1 of P.P1.t | T2 of P.P2.t
+  type t = ast list
 
   let from_string str =
     let splits = P.split str in
@@ -185,9 +169,9 @@ module MakePairParser (P : ParserPair) : PairParser = struct
     (P.combine (List.rev annotated_splits), positions)
 end
 
-module Plaintext = Parser (Plaintext)
-module Markdown = Parser (Markdown)
-module Sexp = Parser (Sexp)
-module Yaml = Parser (Yml)
-module Html = Parser (Html)
+module Plaintext = MakeParser (Plaintext)
+module Markdown = MakeParser (Markdown)
+module Sexp = MakeParser (Sexp)
+module Yaml = MakeParser (Yml)
+module Html = MakeParser (Html)
 module Link = Link
