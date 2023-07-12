@@ -13,18 +13,20 @@ include Utils
 
 module type Parser = sig
   type t
+  type str = string
 
-  val from_string : string -> t
+  val from_string : str -> t
   val extract_links : t -> string list
 
   val replace_links :
     ?start:int -> (int * string) list -> t -> (int * (int * string) list) * t
 
-  val annotate_in_str : bool -> string list -> string -> string * int list
+  val annotate : bool -> string list -> str -> string * int list
 end
 
 module MakeParser (P : BasicParser) : Parser = struct
   type t = P.t
+  type str = string
 
   let from_string = P.from_string
   let link_delimiter = P.link_delimiter
@@ -32,8 +34,8 @@ module MakeParser (P : BasicParser) : Parser = struct
   let replace_links = P.replace_links
 
   let match_positions regexp str =
-    let rec aux split_list pos_list cur_pos =
-      match split_list with
+    let rec aux separate_list pos_list cur_pos =
+      match separate_list with
       | [] -> List.rev pos_list
       | `Text x :: tl -> aux tl pos_list (String.length x + cur_pos)
       | `Delim x :: tl ->
@@ -42,7 +44,7 @@ module MakeParser (P : BasicParser) : Parser = struct
     in
     aux (Re.split_full regexp str) [] 0
 
-  let annotate_in_str verbose exclude_list str =
+  let annotate verbose exclude_list str =
     (*find the links and exclude based on the exclude list*)
     let links =
       str |> from_string |> extract_links |> exclude_patterns exclude_list
@@ -97,36 +99,36 @@ module MakeParser (P : BasicParser) : Parser = struct
          (str, [])
 end
 
+type ('a, 'b) either = Left of 'a | Right of 'b
+
 module type ParserPair = sig
   module P1 : Parser
   module P2 : Parser
 
-  type content = A of string | B of string
-
-  val split : string -> content list
-  val combine : content list -> string
+  val separate : string -> (P1.str, P2.str) either list
+  val join : (P1.str, P2.str) either list -> string
 end
 
 module MakePairParser (P : ParserPair) : Parser = struct
-  type ast = T1 of P.P1.t | T2 of P.P2.t
-  type t = ast list
+  type t = (P.P1.t, P.P2.t) either list
+  type str = string
 
   let from_string str =
-    let splits = P.split str in
-    let rec loop splits =
-      match splits with
+    let parts = P.separate str in
+    let rec loop parts =
+      match parts with
       | [] -> []
-      | P.(A x) :: tl -> T1 (P.P1.from_string x) :: loop tl
-      | P.(B x) :: tl -> T2 (P.P2.from_string x) :: loop tl
+      | Left x :: tl -> Left (P.P1.from_string x) :: loop tl
+      | Right x :: tl -> Right (P.P2.from_string x) :: loop tl
     in
-    loop splits
+    loop parts
 
   let extract_links ts =
     let rec loop ts =
       match ts with
       | [] -> []
-      | T1 t :: tl -> P.P1.extract_links t @ loop tl
-      | T2 t :: tl -> P.P2.extract_links t @ loop tl
+      | Left t :: tl -> P.P1.extract_links t @ loop tl
+      | Right t :: tl -> P.P2.extract_links t @ loop tl
     in
     loop ts
 
@@ -136,12 +138,12 @@ module MakePairParser (P : ParserPair) : Parser = struct
         (fun ((start, v), ts) t ->
           let (start', v'), t' =
             match t with
-            | T1 x ->
+            | Left x ->
                 let c, d = P.P1.replace_links ~start v x in
-                (c, T1 d)
-            | T2 x ->
+                (c, Left d)
+            | Right x ->
                 let c, d = P.P2.replace_links ~start v x in
-                (c, T2 d)
+                (c, Right d)
           in
           ((start', v'), t' :: ts))
         ((start, v), [])
@@ -149,24 +151,24 @@ module MakePairParser (P : ParserPair) : Parser = struct
     in
     (p', List.rev ts')
 
-  let annotate_in_str verbose exclude_list str =
-    let splits = P.split str in
-    let annotated_splits, positions =
+  let annotate verbose exclude_list str =
+    let parts = P.separate str in
+    let annotated_parts, positions =
       List.fold_left
         (fun (asps, pos) sp ->
           let asp', pos' =
             match sp with
-            | P.(A x) ->
-                let c, d = P.P1.annotate_in_str verbose exclude_list x in
-                (P.(A c), d)
-            | P.(B x) ->
-                let c, d = P.P2.annotate_in_str verbose exclude_list x in
-                (P.(B c), d)
+            | Left x ->
+                let c, d = P.P1.annotate verbose exclude_list x in
+                (Left c, d)
+            | Right x ->
+                let c, d = P.P2.annotate verbose exclude_list x in
+                (Right c, d)
           in
           (asp' :: asps, pos' @ pos))
-        ([], []) splits
+        ([], []) parts
     in
-    (P.combine (List.rev annotated_splits), positions)
+    (P.join (List.rev annotated_parts), positions)
 end
 
 module Plaintext = MakeParser (Plaintext)

@@ -33,8 +33,7 @@ let olinkcheck annotate_in_file verbose exclude_list format file =
       `Ok
         (if annotate_in_file then
            Markdown.(
-             Utils.annotate_in_file verbose exclude_list ".md" annotate_in_str
-               file)
+             Utils.annotate_in_file verbose exclude_list ".md" annotate file)
          else
            Markdown.(
              Utils.pretty_print_link_status_from_file verbose exclude_list ".md"
@@ -43,8 +42,7 @@ let olinkcheck annotate_in_file verbose exclude_list format file =
       `Ok
         (if annotate_in_file then
            Plaintext.(
-             Utils.annotate_in_file verbose exclude_list ".txt" annotate_in_str
-               file)
+             Utils.annotate_in_file verbose exclude_list ".txt" annotate file)
          else
            Plaintext.(
              Utils.pretty_print_link_status_from_file verbose exclude_list

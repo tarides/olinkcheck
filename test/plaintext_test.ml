@@ -48,7 +48,7 @@ let test_fix_links () =
      let _, replaced_text = Plaintext.replace_links vs test_text in
      Plaintext.extract_links replaced_text)
 
-let test_annotate_in_str () =
+let test_annotate () =
   let str =
     "http://www.google.com, http://www.google.com/does and \
      http://www.google.com/does-not-exist."
@@ -59,9 +59,9 @@ let test_annotate_in_str () =
   in
   Alcotest.(check string)
     "same string" annotated_str
-    (fst (Plaintext.annotate_in_str false [] str))
+    (fst (Plaintext.annotate false [] str))
 
-let test_verbose_annotate_in_str () =
+let test_verbose_annotate () =
   let str =
     "http://www.google.com, http://www.google.com/does and \
      http://www.google.com/does-not-exist."
@@ -72,4 +72,4 @@ let test_verbose_annotate_in_str () =
   in
   Alcotest.(check string)
     "same string" annotated_str
-    (fst (Plaintext.annotate_in_str true [] str))
+    (fst (Plaintext.annotate true [] str))
