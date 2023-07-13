@@ -13,20 +13,18 @@ include Utils
 
 module type Parser = sig
   type t
-  type str = string
 
-  val from_string : str -> t
+  val from_string : string -> t
   val extract_links : t -> string list
 
   val replace_links :
     ?start:int -> (int * string) list -> t -> (int * (int * string) list) * t
 
-  val annotate : bool -> string list -> str -> string * int list
+  val annotate : bool -> string list -> string -> string * int list
 end
 
 module MakeParser (P : BasicParser) : Parser = struct
   type t = P.t
-  type str = string
 
   let from_string = P.from_string
   let link_delimiter = P.link_delimiter
@@ -99,27 +97,27 @@ module MakeParser (P : BasicParser) : Parser = struct
          (str, [])
 end
 
-type ('a, 'b) either = Left of 'a | Right of 'b
-
 module type ParserPair = sig
   module P1 : Parser
   module P2 : Parser
 
-  val separate : string -> (P1.str, P2.str) either list
-  val join : (P1.str, P2.str) either list -> string
+  type either_parser = P1_parsed of string | P2_parsed of string
+
+  val separate : string -> either_parser list
+  val join : either_parser list -> string
 end
 
 module MakePairParser (P : ParserPair) : Parser = struct
-  type t = (P.P1.t, P.P2.t) either list
-  type str = string
+  type ast = T1 of P.P1.t | T2 of P.P2.t
+  type t = ast list
 
   let from_string str =
     let parts = P.separate str in
     let rec loop parts =
       match parts with
       | [] -> []
-      | Left x :: tl -> Left (P.P1.from_string x) :: loop tl
-      | Right x :: tl -> Right (P.P2.from_string x) :: loop tl
+      | P.(P1_parsed x) :: tl -> T1 (P.P1.from_string x) :: loop tl
+      | P.(P2_parsed x) :: tl -> T2 (P.P2.from_string x) :: loop tl
     in
     loop parts
 
@@ -127,8 +125,8 @@ module MakePairParser (P : ParserPair) : Parser = struct
     let rec loop ts =
       match ts with
       | [] -> []
-      | Left t :: tl -> P.P1.extract_links t @ loop tl
-      | Right t :: tl -> P.P2.extract_links t @ loop tl
+      | T1 t :: tl -> P.P1.extract_links t @ loop tl
+      | T2 t :: tl -> P.P2.extract_links t @ loop tl
     in
     loop ts
 
@@ -138,12 +136,12 @@ module MakePairParser (P : ParserPair) : Parser = struct
         (fun ((start, v), ts) t ->
           let (start', v'), t' =
             match t with
-            | Left x ->
+            | T1 x ->
                 let c, d = P.P1.replace_links ~start v x in
-                (c, Left d)
-            | Right x ->
+                (c, T1 d)
+            | T2 x ->
                 let c, d = P.P2.replace_links ~start v x in
-                (c, Right d)
+                (c, T2 d)
           in
           ((start', v'), t' :: ts))
         ((start, v), [])
@@ -158,12 +156,12 @@ module MakePairParser (P : ParserPair) : Parser = struct
         (fun (asps, pos) sp ->
           let asp', pos' =
             match sp with
-            | Left x ->
+            | P.(P1_parsed x) ->
                 let c, d = P.P1.annotate verbose exclude_list x in
-                (Left c, d)
-            | Right x ->
+                (P.(P1_parsed c), d)
+            | P.(P2_parsed x) ->
                 let c, d = P.P2.annotate verbose exclude_list x in
-                (Right c, d)
+                (P.(P2_parsed c), d)
           in
           (asp' :: asps, pos' @ pos))
         ([], []) parts
