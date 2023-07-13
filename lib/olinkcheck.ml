@@ -32,8 +32,8 @@ module MakeParser (P : BasicParser) : Parser = struct
   let replace_links = P.replace_links
 
   let match_positions regexp str =
-    let rec aux separate_list pos_list cur_pos =
-      match separate_list with
+    let rec aux split_list pos_list cur_pos =
+      match split_list with
       | [] -> List.rev pos_list
       | `Text x :: tl -> aux tl pos_list (String.length x + cur_pos)
       | `Delim x :: tl ->
