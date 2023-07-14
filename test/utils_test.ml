@@ -1,4 +1,4 @@
-let test_exclude_patterns () =
+let exclude_patterns () =
   Alcotest.(check (list string))
     "same lists"
     [ "http://link2.com"; "http://link3.com" ]

@@ -1,11 +1,11 @@
 open Olinkcheck
 
-let test_empty_text () =
+let empty_text () =
   Alcotest.(check (list string))
     "same lists" []
     (Markdown.extract_links (Markdown.from_string ""))
 
-let test_text_without_links () =
+let text_without_links () =
   Alcotest.(check (list string))
     "same lists" []
     (Markdown.extract_links
@@ -13,7 +13,7 @@ let test_text_without_links () =
           "#Heading This text does not contain links. ![alt text](image.png) \
            is an image."))
 
-let test_text_with_links () =
+let text_with_links () =
   Alcotest.(check (list string))
     "same lists"
     [
@@ -34,7 +34,7 @@ let test_text_with_links () =
     ("test.md" |> Olinkcheck.read_bin |> Markdown.from_string
    |> Markdown.extract_links)
 
-let test_fix_links () =
+let fix_links () =
   let new_links =
     [
       "http://newlink1.com";

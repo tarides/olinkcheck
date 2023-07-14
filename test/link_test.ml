@@ -61,7 +61,7 @@ let http_statuses =
     (511, "Network Authentication Required");
   ]
 
-let test_request_with_status (code, reason) =
+let request_with_status (code, reason) =
   let open Lwt.Syntax in
   let server url =
     let completed, signal = Lwt.wait () in
@@ -75,21 +75,21 @@ let test_request_with_status (code, reason) =
   in
   Lwt_main.run (Link.client server "http://127.0.0.1:8080/")
 
-let test_all_status_codes () =
+let all_status_codes () =
   Alcotest.(check (list (pair int string)))
     "same lists" http_statuses
-    (List.map test_request_with_status http_statuses)
+    (List.map request_with_status http_statuses)
 
-let test_valid_link () =
+let valid_link () =
   Alcotest.(check (pair int string))
     "same pair" (200, "OK")
     (Link.status "http://www.google.com")
 
-let test_nonexistent_link () =
+let nonexistent_link () =
   Alcotest.(check (pair int string))
     "same pair" (404, "Not Found")
     (Link.status "http://google.com/does-not-exist")
 
-let test_invalid_link () =
+let invalid_link () =
   Alcotest.(check int) "same code" 1 (fst (Link.status ""))
 

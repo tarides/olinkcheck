@@ -1,18 +1,18 @@
 open Olinkcheck
 
-let test_empty_text () =
+let empty_text () =
   Alcotest.(check (list string))
     "same lists" []
     (Sexp.extract_links (Sexp.from_string ""))
 
-let test_text_without_links () =
+let text_without_links () =
   Alcotest.(check (list string))
     "same lists" []
     (Sexp.extract_links
        (Sexp.from_string
           "(this (sexp (does not contain links) a://b.c) is not a web link.)"))
 
-let test_text_with_links () =
+let text_with_links () =
   Alcotest.(check (list string))
     "same lists"
     [
@@ -27,7 +27,7 @@ let test_text_with_links () =
           "(http://link1.com)(url (http://link2.com))(url2 (nested \
            (http://link3.com)) adjacent http://link4.com (http://link5.com))"))
 
-let test_fix_links () =
+let fix_links () =
   let new_links =
     [
       "http://newlink1.com";
