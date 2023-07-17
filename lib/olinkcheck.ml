@@ -175,3 +175,72 @@ module Sexp = MakeParser (Sexp)
 module Yaml = MakeParser (Yml)
 module Html = MakeParser (Html)
 module Link = Link
+
+module YamlMdPair : ParserPair = struct
+  (* Markdown with a YAML Header. *)
+  module P1 = Yaml
+  module P2 = Markdown
+
+  type either_parser = P1_parsed of string | P2_parsed of string
+
+  let separate str =
+    (* The first occurence of \n---\n marks the end of YAML, and the beginning of Markdown.
+     * Subsequent occurences are a part of the Markdown. *)
+    let delim_regex = Re.Pcre.re "\n---\n" |> Re.compile in
+    let splits = Re.split_full delim_regex str in
+    let yaml, md =
+      let rec loop (y, m) c = function
+        | [] -> (y, m)
+        | `Text x :: tl ->
+            if c then loop (y, m ^ x) c tl else loop (y ^ x, m) c tl
+        | `Delim x :: tl ->
+            let a = Re.Group.get x 0 in
+            loop (y, m ^ a) true tl
+      in
+      loop ("", "") false splits
+    in
+    (* The YAML header may have markdown in the followings fields:
+       changelog: |
+       intro: >
+       intro: |
+       highlights: >
+       highlights: | *)
+    let md_field_names_regex =
+      Re.Pcre.re
+        "(\n\
+         changelog: \\|\n\
+         )|(\n\
+         intro: >\n\
+         )|(\n\
+         intro : \\|\n\
+         )|(\n\
+         highlights: >\n\
+         )|(\n\
+         highlights: \\|\n\
+         )"
+      |> Re.compile
+    in
+    let yaml_splits = Re.split_full md_field_names_regex yaml in
+    let header, _ =
+      List.fold_left
+        (fun (hs, md_text) y ->
+          let h, nxt =
+            match (y, md_text) with
+            | `Text x, true -> (P2_parsed x, false)
+            | `Text x, false -> (P1_parsed x, false)
+            | `Delim x, _ -> (P1_parsed (Re.Group.get x 0), true)
+          in
+          (h :: hs, nxt))
+        ([], false) yaml_splits
+    in
+    List.rev header @ [ P2_parsed md ]
+
+  let join strs =
+    List.fold_left
+      (fun acc str ->
+        let x = match str with P1_parsed x -> x | P2_parsed x -> x in
+        acc ^ x)
+      "" strs
+end
+
+module YamlMd = MakePairParser (YamlMdPair)
