@@ -1,4 +1,4 @@
-module type ParserType = sig
+module type BasicParser = sig
   type t
 
   val from_string : string -> t
@@ -11,7 +11,19 @@ end
 
 include Utils
 
-module Parser (P : ParserType) = struct
+module type Parser = sig
+  type t
+
+  val from_string : string -> t
+  val extract_links : t -> string list
+
+  val replace_links :
+    ?start:int -> (int * string) list -> t -> (int * (int * string) list) * t
+
+  val annotate : bool -> string list -> string -> string * int list
+end
+
+module MakeParser (P : BasicParser) : Parser = struct
   type t = P.t
 
   let from_string = P.from_string
@@ -30,7 +42,7 @@ module Parser (P : ParserType) = struct
     in
     aux (Re.split_full regexp str) [] 0
 
-  let annotate_in_str verbose exclude_list str =
+  let annotate verbose exclude_list str =
     (*find the links and exclude based on the exclude list*)
     let links =
       str |> from_string |> extract_links |> exclude_patterns exclude_list
@@ -85,9 +97,81 @@ module Parser (P : ParserType) = struct
          (str, [])
 end
 
-module Plaintext = Parser (Plaintext)
-module Markdown = Parser (Markdown)
-module Sexp = Parser (Sexp)
-module Yaml = Parser (Yml)
-module Html = Parser (Html)
+module type ParserPair = sig
+  module P1 : Parser
+  module P2 : Parser
+
+  type either_parser = P1_parsed of string | P2_parsed of string
+
+  val separate : string -> either_parser list
+  val join : either_parser list -> string
+end
+
+module MakePairParser (P : ParserPair) : Parser = struct
+  type ast = T1 of P.P1.t | T2 of P.P2.t
+  type t = ast list
+
+  let from_string str =
+    let parts = P.separate str in
+    let rec loop parts =
+      match parts with
+      | [] -> []
+      | P.(P1_parsed x) :: tl -> T1 (P.P1.from_string x) :: loop tl
+      | P.(P2_parsed x) :: tl -> T2 (P.P2.from_string x) :: loop tl
+    in
+    loop parts
+
+  let extract_links ts =
+    let rec loop ts =
+      match ts with
+      | [] -> []
+      | T1 t :: tl -> P.P1.extract_links t @ loop tl
+      | T2 t :: tl -> P.P2.extract_links t @ loop tl
+    in
+    loop ts
+
+  let replace_links ?(start = 0) v ts =
+    let p', ts' =
+      List.fold_left
+        (fun ((start, v), ts) t ->
+          let (start', v'), t' =
+            match t with
+            | T1 x ->
+                let c, d = P.P1.replace_links ~start v x in
+                (c, T1 d)
+            | T2 x ->
+                let c, d = P.P2.replace_links ~start v x in
+                (c, T2 d)
+          in
+          ((start', v'), t' :: ts))
+        ((start, v), [])
+        ts
+    in
+    (p', List.rev ts')
+
+  let annotate verbose exclude_list str =
+    let parts = P.separate str in
+    let annotated_parts, positions =
+      List.fold_left
+        (fun (asps, pos) sp ->
+          let asp', pos' =
+            match sp with
+            | P.(P1_parsed x) ->
+                let c, d = P.P1.annotate verbose exclude_list x in
+                (P.(P1_parsed c), d)
+            | P.(P2_parsed x) ->
+                let c, d = P.P2.annotate verbose exclude_list x in
+                (P.(P2_parsed c), d)
+          in
+          (asp' :: asps, pos' @ pos))
+        ([], []) parts
+    in
+    (P.join (List.rev annotated_parts), positions)
+end
+
+module Plaintext = MakeParser (Plaintext)
+module Markdown = MakeParser (Markdown)
+module Sexp = MakeParser (Sexp)
+module Yaml = MakeParser (Yml)
+module Html = MakeParser (Html)
 module Link = Link
