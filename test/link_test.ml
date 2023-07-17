@@ -1,4 +1,5 @@
 open Olinkcheck
+
 let http_statuses =
   [
     (101, "Switching Protocols");
@@ -90,6 +91,4 @@ let nonexistent_link () =
     "same pair" (404, "Not Found")
     (Link.status "http://google.com/does-not-exist")
 
-let invalid_link () =
-  Alcotest.(check int) "same code" 1 (fst (Link.status ""))
-
+let invalid_link () = Alcotest.(check int) "same code" 1 (fst (Link.status ""))

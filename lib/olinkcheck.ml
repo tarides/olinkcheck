@@ -15,21 +15,13 @@ module type Parser = sig
   type t
 
   val from_string : string -> t
-<<<<<<< HEAD
-=======
-  val link_delimiter : string
->>>>>>> f67f097 (refactor main)
   val extract_links : t -> string list
 
   val replace_links :
     ?start:int -> (int * string) list -> t -> (int * (int * string) list) * t
 
-<<<<<<< HEAD
-  val annotate : bool -> string list -> string -> string * int list
-=======
   val annotate :
     ?verbose:bool -> ?exclude_list:string list -> string -> string * int list
->>>>>>> f67f097 (refactor main)
 end
 
 module MakeParser (P : BasicParser) : Parser = struct
@@ -54,7 +46,8 @@ module MakeParser (P : BasicParser) : Parser = struct
   let annotate ?(verbose = false) ?(exclude_list = []) str =
     (*find the links and exclude based on the exclude list*)
     let links =
-      str |> from_string |> extract_links |> exclude_patterns exclude_list
+      str |> from_string |> extract_links
+      |> exclude_patterns ~prefix_list:exclude_list
     in
     (*get their status*)
     let status = Link.status_many links in
@@ -106,7 +99,6 @@ module MakeParser (P : BasicParser) : Parser = struct
          (str, [])
 end
 
-<<<<<<< HEAD
 module type ParserPair = sig
   module P1 : Parser
   module P2 : Parser
@@ -159,7 +151,7 @@ module MakePairParser (P : ParserPair) : Parser = struct
     in
     (p', List.rev ts')
 
-  let annotate verbose exclude_list str =
+  let annotate ?(verbose = false) ?(exclude_list = []) str =
     let parts = P.separate str in
     let annotated_parts, positions =
       List.fold_left
@@ -167,10 +159,10 @@ module MakePairParser (P : ParserPair) : Parser = struct
           let asp', pos' =
             match sp with
             | P.(P1_parsed x) ->
-                let c, d = P.P1.annotate verbose exclude_list x in
+                let c, d = P.P1.annotate ~verbose ~exclude_list x in
                 (P.(P1_parsed c), d)
             | P.(P2_parsed x) ->
-                let c, d = P.P2.annotate verbose exclude_list x in
+                let c, d = P.P2.annotate ~verbose ~exclude_list x in
                 (P.(P2_parsed c), d)
           in
           (asp' :: asps, pos' @ pos))
@@ -179,8 +171,6 @@ module MakePairParser (P : ParserPair) : Parser = struct
     (P.join (List.rev annotated_parts), positions)
 end
 
-=======
->>>>>>> f67f097 (refactor main)
 module Plaintext = MakeParser (Plaintext)
 module Markdown = MakeParser (Markdown)
 module Sexp = MakeParser (Sexp)

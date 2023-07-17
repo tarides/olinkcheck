@@ -65,7 +65,7 @@ let test_annotate () =
   in
   Alcotest.(check string)
     "same string" annotated_md
-    (fst (YamlHtml.annotate false [] md))
+    (fst (YamlHtml.annotate md))
 
 let test_verbose_annotate () =
   let md = read_bin "yaml_html_2.md" in
@@ -84,4 +84,4 @@ let test_verbose_annotate () =
   in
   Alcotest.(check string)
     "same string" annotated_md
-    (fst (YamlHtml.annotate true [] md))
+    (fst (YamlHtml.annotate ~verbose:true md))

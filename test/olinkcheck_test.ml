@@ -8,8 +8,7 @@ let () =
             Markdown_test.text_without_links;
           Alcotest.test_case "Text with links" `Slow
             Markdown_test.text_with_links;
-          Alcotest.test_case "Test fix links" `Quick
-            Markdown_test.fix_links;
+          Alcotest.test_case "Test fix links" `Quick Markdown_test.fix_links;
           Alcotest.test_case "Annotate broken links" `Quick
             Markdown_test.annotate;
           Alcotest.test_case "Verbose annotate broken links" `Quick
@@ -22,8 +21,7 @@ let () =
             Plaintext_test.text_without_links;
           Alcotest.test_case "Text with links" `Slow
             Plaintext_test.text_with_links;
-          Alcotest.test_case "Test fix links" `Quick
-            Plaintext_test.fix_links;
+          Alcotest.test_case "Test fix links" `Quick Plaintext_test.fix_links;
           Alcotest.test_case "Annotate broken links" `Quick
             Plaintext_test.annotate;
           Alcotest.test_case "Verbose annotate broken links" `Quick
@@ -34,8 +32,7 @@ let () =
           Alcotest.test_case "Empty text" `Quick Sexp_test.empty_text;
           Alcotest.test_case "Text without links" `Quick
             Sexp_test.text_without_links;
-          Alcotest.test_case "Text with links" `Slow
-            Sexp_test.text_with_links;
+          Alcotest.test_case "Text with links" `Slow Sexp_test.text_with_links;
           Alcotest.test_case "Test fix links" `Quick Sexp_test.fix_links;
         ] );
       ( "yaml",
@@ -43,8 +40,7 @@ let () =
           Alcotest.test_case "Empty text" `Quick Yml_test.empty_text;
           Alcotest.test_case "Text without links" `Quick
             Yml_test.text_without_links;
-          Alcotest.test_case "Text with links" `Slow
-            Yml_test.text_with_links;
+          Alcotest.test_case "Text with links" `Slow Yml_test.text_with_links;
           Alcotest.test_case "Test fix links" `Quick Yml_test.fix_links;
         ] );
       ( "html",
@@ -52,8 +48,7 @@ let () =
           Alcotest.test_case "Empty text" `Quick Html_test.empty_text;
           Alcotest.test_case "Text without links" `Quick
             Html_test.text_without_links;
-          Alcotest.test_case "Text with links" `Slow
-            Html_test.text_with_links;
+          Alcotest.test_case "Text with links" `Slow Html_test.text_with_links;
           Alcotest.test_case "Test fix links" `Quick Html_test.fix_links;
         ] );
       ( "yaml_md",

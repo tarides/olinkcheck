@@ -33,7 +33,7 @@ let pretty_print_link_status_from_file (type p)
   |> List.iter (fun file ->
          try
            file |> read_bin |> M.from_string |> M.extract_links
-           |> exclude_patterns exclude_list
+           |> exclude_patterns ~prefix_list:exclude_list
            |> (fun links ->
                 print_endline file;
                 let statuses = Link.status_many links in

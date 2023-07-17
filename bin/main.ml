@@ -42,7 +42,7 @@ let olinkcheck annotate_in_file verbose exclude_list format file =
   in
   match format with
   | Markdown -> `Ok (f (module Markdown) verbose exclude_list ".md" file)
-  | Plaintext -> `Ok (f (module Plaintext) verbose exclude_list ".md" file)
+  | Plaintext -> `Ok (f (module Plaintext) verbose exclude_list ".txt" file)
   | YamlMd -> `Ok (f (module YamlMd) verbose exclude_list ".md" file)
   | YamlHtml -> `Ok (f (module YamlHtml) verbose exclude_list ".md" file)
 
