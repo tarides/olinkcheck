@@ -26,13 +26,13 @@ let read_exclude_list file =
       |> List.filter (fun pat -> pat <> "")
   | None -> []
 
-let pretty_print_link_status_from_file verbose exclude_list ext from_string
-    extract_links file =
+let pretty_print_link_status_from_file (type p)
+    (module M : Parser with type t = p) verbose exclude_list ext file =
   let exclude_list = read_exclude_list exclude_list in
   file |> files_with_ext ext
   |> List.iter (fun file ->
          try
-           file |> read_bin |> from_string |> extract_links
+           file |> read_bin |> M.from_string |> M.extract_links
            |> exclude_patterns exclude_list
            |> (fun links ->
                 print_endline file;
@@ -41,12 +41,13 @@ let pretty_print_link_status_from_file verbose exclude_list ext from_string
            |> List.iter (pretty_print_link_status verbose)
          with Sys_error _ -> ())
 
-let annotate_in_file verbose exclude_list ext annotate file =
+let annotate_in_file (type p) (module M : Parser with type t = p) verbose
+    exclude_list ext file =
   let exclude_list = read_exclude_list exclude_list in
   file |> files_with_ext ext
   |> List.iter (fun file ->
          try
-           file |> read_bin |> annotate verbose exclude_list |> fst
+           file |> read_bin |> M.(annotate ~verbose ~exclude_list) |> fst
            |> fun new_str ->
            let out_chan = open_out file in
            Printf.fprintf out_chan "%s" new_str;

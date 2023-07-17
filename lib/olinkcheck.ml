@@ -15,12 +15,21 @@ module type Parser = sig
   type t
 
   val from_string : string -> t
+<<<<<<< HEAD
+=======
+  val link_delimiter : string
+>>>>>>> f67f097 (refactor main)
   val extract_links : t -> string list
 
   val replace_links :
     ?start:int -> (int * string) list -> t -> (int * (int * string) list) * t
 
+<<<<<<< HEAD
   val annotate : bool -> string list -> string -> string * int list
+=======
+  val annotate :
+    ?verbose:bool -> ?exclude_list:string list -> string -> string * int list
+>>>>>>> f67f097 (refactor main)
 end
 
 module MakeParser (P : BasicParser) : Parser = struct
@@ -42,7 +51,7 @@ module MakeParser (P : BasicParser) : Parser = struct
     in
     aux (Re.split_full regexp str) [] 0
 
-  let annotate verbose exclude_list str =
+  let annotate ?(verbose = false) ?(exclude_list = []) str =
     (*find the links and exclude based on the exclude list*)
     let links =
       str |> from_string |> extract_links |> exclude_patterns exclude_list
@@ -97,6 +106,7 @@ module MakeParser (P : BasicParser) : Parser = struct
          (str, [])
 end
 
+<<<<<<< HEAD
 module type ParserPair = sig
   module P1 : Parser
   module P2 : Parser
@@ -169,6 +179,8 @@ module MakePairParser (P : ParserPair) : Parser = struct
     (P.join (List.rev annotated_parts), positions)
 end
 
+=======
+>>>>>>> f67f097 (refactor main)
 module Plaintext = MakeParser (Plaintext)
 module Markdown = MakeParser (Markdown)
 module Sexp = MakeParser (Sexp)

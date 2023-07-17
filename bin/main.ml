@@ -36,43 +36,15 @@ let exclude_list =
     & info [ "exclude-list" ] ~docv:"EXCLUDE-LIST" ~doc)
 
 let olinkcheck annotate_in_file verbose exclude_list format file =
+  let f =
+    if annotate_in_file then Utils.annotate_in_file
+    else Utils.pretty_print_link_status_from_file
+  in
   match format with
-  | Markdown ->
-      `Ok
-        (if annotate_in_file then
-           Markdown.(
-             Utils.annotate_in_file verbose exclude_list ".md" annotate file)
-         else
-           Markdown.(
-             Utils.pretty_print_link_status_from_file verbose exclude_list ".md"
-               from_string extract_links file))
-  | Plaintext ->
-      `Ok
-        (if annotate_in_file then
-           Plaintext.(
-             Utils.annotate_in_file verbose exclude_list ".txt" annotate file)
-         else
-           Plaintext.(
-             Utils.pretty_print_link_status_from_file verbose exclude_list
-               ".txt" from_string extract_links file))
-  | YamlMd ->
-      `Ok
-        (if annotate_in_file then
-           YamlMd.(
-             Utils.annotate_in_file verbose exclude_list ".md" annotate file)
-         else
-           YamlMd.(
-             Utils.pretty_print_link_status_from_file verbose exclude_list ".md"
-               from_string extract_links file))
-  | YamlHtml ->
-      `Ok
-        (if annotate_in_file then
-           YamlHtml.(
-             Utils.annotate_in_file verbose exclude_list ".md" annotate file)
-         else
-           YamlHtml.(
-             Utils.pretty_print_link_status_from_file verbose exclude_list ".md"
-               from_string extract_links file))
+  | Markdown -> `Ok (f (module Markdown) verbose exclude_list ".md" file)
+  | Plaintext -> `Ok (f (module Plaintext) verbose exclude_list ".md" file)
+  | YamlMd -> `Ok (f (module YamlMd) verbose exclude_list ".md" file)
+  | YamlHtml -> `Ok (f (module YamlHtml) verbose exclude_list ".md" file)
 
 let cmd =
   let doc = "Check the status of links in a file." in
