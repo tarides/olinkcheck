@@ -1,4 +1,4 @@
 (test
  (name olinkcheck_test)
  (libraries olinkcheck alcotest)
- (deps test.md test.yaml test.html))
+ (deps test.md test.yaml test.html test_yaml_md1.md test_yaml_md.md))
