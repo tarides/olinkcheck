@@ -41,12 +41,12 @@ let pretty_print_link_status_from_file verbose exclude_list ext from_string
            |> List.iter (pretty_print_link_status verbose)
          with Sys_error _ -> ())
 
-let annotate_in_file verbose exclude_list ext annotate_in_str file =
+let annotate_in_file verbose exclude_list ext annotate file =
   let exclude_list = read_exclude_list exclude_list in
   file |> files_with_ext ext
   |> List.iter (fun file ->
          try
-           file |> read_bin |> annotate_in_str verbose exclude_list |> fst
+           file |> read_bin |> annotate verbose exclude_list |> fst
            |> fun new_str ->
            let out_chan = open_out file in
            Printf.fprintf out_chan "%s" new_str;

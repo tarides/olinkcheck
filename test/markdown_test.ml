@@ -60,7 +60,7 @@ let fix_links () =
      let _, transformed_md = Markdown.replace_links vs md in
      Markdown.extract_links transformed_md)
 
-let test_annotate () =
+let annotate () =
   let md =
     "[link1](http://www.google.com) and \
      [link2](http://www.google.com/does-not-exist), but not \
@@ -75,7 +75,7 @@ let test_annotate () =
     "same string" annotated_md
     (fst (Markdown.annotate false [] md))
 
-let test_verbose_annotate () =
+let verbose_annotate () =
   let md =
     "[link1](http://www.google.com) and \
      [link2](http://www.google.com/does-not-exist), but not \
