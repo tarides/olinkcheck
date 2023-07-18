@@ -32,7 +32,7 @@ let test_text_with_links () =
       "http://link12.com";
       "http://link13.com";
     ]
-    ("test_yaml_md.md" |> Olinkcheck.read_bin |> YamlMd.from_string
+    ("yaml_md_1.md" |> Olinkcheck.read_bin |> YamlMd.from_string
    |> YamlMd.extract_links)
 
 let test_fix_links () =
@@ -58,13 +58,13 @@ let test_fix_links () =
   Alcotest.(check (list string))
     "same lists" new_links
     (let ids = [ 0; 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14 ] in
-     let md = YamlMd.from_string @@ Olinkcheck.read_bin "test_yaml_md.md" in
+     let md = YamlMd.from_string @@ Olinkcheck.read_bin "yaml_md_1.md" in
      let vs = List.combine ids new_links in
      let _, transformed_md = YamlMd.replace_links vs md in
      YamlMd.extract_links transformed_md)
 
 let test_annotate () =
-  let md = read_bin "test_yaml_md1.md" in
+  let md = read_bin "yaml_md_2.md" in
   let annotated_md =
     "---\n\
      url: http://www.google.com\n\
@@ -79,7 +79,7 @@ let test_annotate () =
     (fst (YamlMd.annotate false [] md))
 
 let test_verbose_annotate () =
-  let md = read_bin "test_yaml_md1.md" in
+  let md = read_bin "yaml_md_2.md" in
   let annotated_md =
     "---\n\
      url: http://www.google.com - [200 OK]\n\

@@ -56,8 +56,8 @@ let olinkcheck annotate_in_file verbose exclude_list format file =
              Utils.annotate_in_file verbose exclude_list ".md" annotate file)
          else
            YamlMd.(
-             Utils.pretty_print_link_status_from_file verbose exclude_list
-               ".md" from_string extract_links file))
+             Utils.pretty_print_link_status_from_file verbose exclude_list ".md"
+               from_string extract_links file))
 
 let cmd =
   let doc = "Check the status of links in a file." in
