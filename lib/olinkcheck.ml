@@ -252,6 +252,7 @@ module YamlHtmlPair : ParserPair = struct
   type either_parser = P1_parsed of string | P2_parsed of string
 
   let separate str =
+    (* The first occurence of \n---\n marks the end of YAML, and the beginning of HTML. *)
     let delim_regex = "\n---\n" |> Re.Pcre.re |> Re.compile in
     let splits = Re.split_full delim_regex str in
     let yaml, html =
@@ -276,4 +277,3 @@ module YamlHtmlPair : ParserPair = struct
 end
 
 module YamlHtml = MakePairParser (YamlHtmlPair)
-module YamlHtmlParser = MakePairParser (YamlHtmlPair)
