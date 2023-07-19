@@ -1,12 +1,18 @@
 open Olinkcheck
 open Cmdliner
 
-type format = Markdown | Plaintext | YamlMd
+type format = Markdown | Plaintext | YamlMd | YamlHtml
 
 let format =
   let doc = "Format of the input file." in
   let format =
-    Arg.enum [ ("md", Markdown); ("txt", Plaintext); ("md_with_yaml", YamlMd) ]
+    Arg.enum
+      [
+        ("md", Markdown);
+        ("txt", Plaintext);
+        ("md_with_yaml", YamlMd);
+        ("html_with_yaml", YamlHtml);
+      ]
   in
   Arg.(required & pos 0 (some format) None & info [] ~docv:"FORMAT" ~doc)
 
@@ -56,6 +62,15 @@ let olinkcheck annotate_in_file verbose exclude_list format file =
              Utils.annotate_in_file verbose exclude_list ".md" annotate file)
          else
            YamlMd.(
+             Utils.pretty_print_link_status_from_file verbose exclude_list ".md"
+               from_string extract_links file))
+  | YamlHtml ->
+      `Ok
+        (if annotate_in_file then
+           YamlHtml.(
+             Utils.annotate_in_file verbose exclude_list ".md" annotate file)
+         else
+           YamlHtml.(
              Utils.pretty_print_link_status_from_file verbose exclude_list ".md"
                from_string extract_links file))
 
