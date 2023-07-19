@@ -20,7 +20,7 @@ let verbose =
 
 let annotate_in_file =
   let doc = "Annotate broken links in the file" in
-  Arg.(value & flag & info [ "annotate-in-file" ] ~doc)
+  Arg.(value & flag & info [ "annotate" ] ~doc)
 
 let exclude_list =
   let doc = "File containing URL patterns to avoid querying" in
