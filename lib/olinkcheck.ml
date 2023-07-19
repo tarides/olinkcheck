@@ -244,3 +244,36 @@ module YamlMdPair : ParserPair = struct
 end
 
 module YamlMd = MakePairParser (YamlMdPair)
+
+module YamlHtmlPair : ParserPair = struct
+  module P1 = YamlMd
+  module P2 = Html
+
+  type either_parser = P1_parsed of string | P2_parsed of string
+
+  let separate str =
+    let delim_regex = "\n---\n" |> Re.Pcre.re |> Re.compile in
+    let splits = Re.split_full delim_regex str in
+    let yaml, html =
+      let rec loop (y, m) c = function
+        | [] -> (y, m)
+        | `Text x :: tl ->
+            if c then loop (y, m ^ x) c tl else loop (y ^ x, m) c tl
+        | `Delim x :: tl ->
+            let a = Re.Group.get x 0 in
+            loop (y, m ^ a) true tl
+      in
+      loop ("", "") false splits
+    in
+    [ P1_parsed yaml; P2_parsed html ]
+
+  let join strs =
+    List.fold_left
+      (fun acc str ->
+        let x = match str with P1_parsed x -> x | P2_parsed x -> x in
+        acc ^ x)
+      "" strs
+end
+
+module YamlHtml = MakePairParser (YamlHtmlPair)
+module YamlHtmlParser = MakePairParser (YamlHtmlPair)
