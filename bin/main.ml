@@ -68,5 +68,4 @@ let cmd =
         (const olinkcheck $ annotate_in_file $ verbose $ exclude_list $ format
        $ file))
 
-let main = exit (Cmd.eval cmd)
-let () = main
+let _ = exit (Cmd.eval cmd)
