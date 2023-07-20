@@ -29,12 +29,12 @@ let trim_trailing_whitespace s =
   in
   loop s
 
-let exclude_patterns ?(prefix_list = []) links =
+let exclude_patterns ?(prefixes = []) links =
   links
   |> List.filter (fun link ->
          List.fold_left
            (fun ok prefix -> ok && not (starts_with ~prefix link))
-           true prefix_list)
+           true prefixes)
 
 (** Adapted from {{: https://github.com/ocaml/ocaml/blob/5.1/stdlib/in_channel.ml#L83 } Ocaml 5.1 In_channel}*)
 let read_upto ic buf ofs len =
