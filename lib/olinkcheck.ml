@@ -20,7 +20,11 @@ module type Parser = sig
   val replace_links :
     ?start:int -> (int * string) list -> t -> (int * (int * string) list) * t
 
-  val annotate : bool -> string list -> string -> string * int list
+  val annotate :
+    ?verbose:bool ->
+    ?exclude_prefixes:string list ->
+    string ->
+    string * int list
 end
 
 module MakeParser (P : BasicParser) : Parser = struct
@@ -42,10 +46,11 @@ module MakeParser (P : BasicParser) : Parser = struct
     in
     aux (Re.split_full regexp str) [] 0
 
-  let annotate verbose exclude_list str =
+  let annotate ?(verbose = false) ?(exclude_prefixes = []) str =
     (*find the links and exclude based on the exclude list*)
     let links =
-      str |> from_string |> extract_links |> exclude_patterns exclude_list
+      str |> from_string |> extract_links
+      |> exclude_patterns ~prefixes:exclude_prefixes
     in
     (*get their status*)
     let status = Link.status_many links in
@@ -149,7 +154,7 @@ module MakePairParser (P : ParserPair) : Parser = struct
     in
     (p', List.rev ts')
 
-  let annotate verbose exclude_list str =
+  let annotate ?(verbose = false) ?(exclude_prefixes = []) str =
     let parts = P.separate str in
     let annotated_parts, positions =
       List.fold_left
@@ -157,10 +162,10 @@ module MakePairParser (P : ParserPair) : Parser = struct
           let asp', pos' =
             match sp with
             | P.(P1_parsed x) ->
-                let c, d = P.P1.annotate verbose exclude_list x in
+                let c, d = P.P1.annotate ~verbose ~exclude_prefixes x in
                 (P.(P1_parsed c), d)
             | P.(P2_parsed x) ->
-                let c, d = P.P2.annotate verbose exclude_list x in
+                let c, d = P.P2.annotate ~verbose ~exclude_prefixes x in
                 (P.(P2_parsed c), d)
           in
           (asp' :: asps, pos' @ pos))

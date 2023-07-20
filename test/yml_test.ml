@@ -1,17 +1,17 @@
 open Olinkcheck
 
-let test_empty_text () =
+let empty_text () =
   Alcotest.(check (list string))
     "same lists" []
     (Yaml.extract_links (Yaml.from_string ""))
 
-let test_text_without_links () =
+let text_without_links () =
   Alcotest.(check (list string))
     "same lists" []
     (Yaml.extract_links
        (Yaml.from_string "this: yaml\ndoc: \n- does: not\n- contain: links"))
 
-let test_text_with_links () =
+let text_with_links () =
   Alcotest.(check (list string))
     "same lists"
     [
@@ -25,7 +25,7 @@ let test_text_with_links () =
     ("test.yaml" |> Olinkcheck.read_bin |> Yaml.from_string
    |> Yaml.extract_links)
 
-let test_fix_links () =
+let fix_links () =
   let new_links =
     [
       "http://newlink1.com";

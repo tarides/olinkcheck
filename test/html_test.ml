@@ -1,11 +1,11 @@
 open Olinkcheck
 
-let test_empty_text () =
+let empty_text () =
   Alcotest.(check (list string))
     "same lists" []
     (Html.extract_links (Html.from_string ""))
 
-let test_text_without_links () =
+let text_without_links () =
   Alcotest.(check (list string))
     "same lists" []
     (Html.extract_links
@@ -13,7 +13,7 @@ let test_text_without_links () =
           "<html><p>this html</p><ul><li>does \
            not</li><li>have</li><li>links</li></ul></html>"))
 
-let test_text_with_links () =
+let text_with_links () =
   Alcotest.(check (list string))
     "same lists"
     [
@@ -26,7 +26,7 @@ let test_text_with_links () =
     ("test.html" |> Olinkcheck.read_bin |> Html.from_string
    |> Html.extract_links)
 
-let test_fix_links () =
+let fix_links () =
   let new_links =
     [
       "http://newlink1.com";

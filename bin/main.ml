@@ -28,51 +28,24 @@ let annotate_in_file =
   let doc = "Annotate broken links in the file" in
   Arg.(value & flag & info [ "annotate" ] ~doc)
 
-let exclude_list =
+let exclude_file =
   let doc = "File containing URL patterns to avoid querying" in
   Arg.(
     value
     & opt (some file) None
     & info [ "exclude-list" ] ~docv:"EXCLUDE-LIST" ~doc)
 
-let olinkcheck annotate_in_file verbose exclude_list format file =
+let olinkcheck annotate_in_file verbose exclude_file format file =
+  let f =
+    if annotate_in_file then Utils.annotate_in_file
+    else Utils.pp_link_status_file
+  in
   match format with
-  | Markdown ->
-      `Ok
-        (if annotate_in_file then
-           Markdown.(
-             Utils.annotate_in_file verbose exclude_list ".md" annotate file)
-         else
-           Markdown.(
-             Utils.pretty_print_link_status_from_file verbose exclude_list ".md"
-               from_string extract_links file))
+  | Markdown -> `Ok (f (module Markdown) ~verbose ~exclude_file ~ext:".md" file)
   | Plaintext ->
-      `Ok
-        (if annotate_in_file then
-           Plaintext.(
-             Utils.annotate_in_file verbose exclude_list ".txt" annotate file)
-         else
-           Plaintext.(
-             Utils.pretty_print_link_status_from_file verbose exclude_list
-               ".txt" from_string extract_links file))
-  | YamlMd ->
-      `Ok
-        (if annotate_in_file then
-           YamlMd.(
-             Utils.annotate_in_file verbose exclude_list ".md" annotate file)
-         else
-           YamlMd.(
-             Utils.pretty_print_link_status_from_file verbose exclude_list ".md"
-               from_string extract_links file))
-  | YamlHtml ->
-      `Ok
-        (if annotate_in_file then
-           YamlHtml.(
-             Utils.annotate_in_file verbose exclude_list ".md" annotate file)
-         else
-           YamlHtml.(
-             Utils.pretty_print_link_status_from_file verbose exclude_list ".md"
-               from_string extract_links file))
+      `Ok (f (module Plaintext) ~verbose ~exclude_file ~ext:".txt" file)
+  | YamlMd -> `Ok (f (module YamlMd) ~verbose ~exclude_file ~ext:".md" file)
+  | YamlHtml -> `Ok (f (module YamlHtml) ~verbose ~exclude_file ~ext:".md" file)
 
 let cmd =
   let doc = "Check the status of links in a file." in
@@ -80,7 +53,7 @@ let cmd =
   Cmd.v info
     Term.(
       ret
-        (const olinkcheck $ annotate_in_file $ verbose $ exclude_list $ format
+        (const olinkcheck $ annotate_in_file $ verbose $ exclude_file $ format
        $ file))
 
 let _ = exit (Cmd.eval cmd)

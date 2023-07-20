@@ -74,9 +74,7 @@ let test_annotate () =
      [link2](http://www.google.com/does-not-exist - [404 Not Found]), but not \
      http://www.google.com/does-not-exist-too\n"
   in
-  Alcotest.(check string)
-    "same string" annotated_md
-    (fst (YamlMd.annotate false [] md))
+  Alcotest.(check string) "same string" annotated_md (fst (YamlMd.annotate md))
 
 let test_verbose_annotate () =
   let md = read_bin "yaml_md_2.md" in
@@ -91,4 +89,4 @@ let test_verbose_annotate () =
   in
   Alcotest.(check string)
     "same string" annotated_md
-    (fst (YamlMd.annotate true [] md))
+    (fst (YamlMd.annotate ~verbose:true md))

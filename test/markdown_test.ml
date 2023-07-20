@@ -1,11 +1,11 @@
 open Olinkcheck
 
-let test_empty_text () =
+let empty_text () =
   Alcotest.(check (list string))
     "same lists" []
     (Markdown.extract_links (Markdown.from_string ""))
 
-let test_text_without_links () =
+let text_without_links () =
   Alcotest.(check (list string))
     "same lists" []
     (Markdown.extract_links
@@ -13,7 +13,7 @@ let test_text_without_links () =
           "#Heading This text does not contain links. ![alt text](image.png) \
            is an image."))
 
-let test_text_with_links () =
+let text_with_links () =
   Alcotest.(check (list string))
     "same lists"
     [
@@ -34,7 +34,7 @@ let test_text_with_links () =
     ("test.md" |> Olinkcheck.read_bin |> Markdown.from_string
    |> Markdown.extract_links)
 
-let test_fix_links () =
+let fix_links () =
   let new_links =
     [
       "http://newlink1.com";
@@ -60,7 +60,7 @@ let test_fix_links () =
      let _, transformed_md = Markdown.replace_links vs md in
      Markdown.extract_links transformed_md)
 
-let test_annotate () =
+let annotate () =
   let md =
     "[link1](http://www.google.com) and \
      [link2](http://www.google.com/does-not-exist), but not \
@@ -73,9 +73,9 @@ let test_annotate () =
   in
   Alcotest.(check string)
     "same string" annotated_md
-    (fst (Markdown.annotate false [] md))
+    (fst (Markdown.annotate md))
 
-let test_verbose_annotate () =
+let verbose_annotate () =
   let md =
     "[link1](http://www.google.com) and \
      [link2](http://www.google.com/does-not-exist), but not \
@@ -88,4 +88,4 @@ let test_verbose_annotate () =
   in
   Alcotest.(check string)
     "same string" annotated_md
-    (fst (Markdown.annotate true [] md))
+    (fst (Markdown.annotate ~verbose:true md))
