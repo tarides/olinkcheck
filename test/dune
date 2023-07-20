@@ -2,10 +2,10 @@
  (name olinkcheck_test)
  (libraries olinkcheck alcotest)
  (deps
-  test.md
-  test.yaml
-  test.html
-  yaml_md_1.md
-  yaml_md_2.md
-  yaml_html_1.md
-  yaml_html_2.md))
+  data/test.md
+  data/test.yaml
+  data/test.html
+  data/yaml_md_1.md
+  data/yaml_md_2.md
+  data/yaml_html_1.md
+  data/yaml_html_2.md))

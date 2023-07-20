@@ -31,7 +31,7 @@ let text_with_links () =
       "http://link12.com";
       "http://link13.com";
     ]
-    ("test.md" |> Olinkcheck.read_bin |> Markdown.from_string
+    ("data/test.md" |> Olinkcheck.read_bin |> Markdown.from_string
    |> Markdown.extract_links)
 
 let fix_links () =
@@ -55,7 +55,7 @@ let fix_links () =
   Alcotest.(check (list string))
     "same lists" new_links
     (let ids = [ 0; 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12 ] in
-     let md = Markdown.from_string @@ Olinkcheck.read_bin "test.md" in
+     let md = Markdown.from_string @@ Olinkcheck.read_bin "data/test.md" in
      let vs = List.combine ids new_links in
      let _, transformed_md = Markdown.replace_links vs md in
      Markdown.extract_links transformed_md)
