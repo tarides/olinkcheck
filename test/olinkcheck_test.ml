@@ -175,6 +175,17 @@ let () =
           Alcotest.test_case "Verbose annotate broken links" `Quick
             Yaml_md_test.test_verbose_annotate;
         ] );
+      ( "yaml_html",
+        [
+          Alcotest.test_case "Text with links" `Slow
+            Yaml_html_test.test_text_with_links;
+          Alcotest.test_case "Test fix links" `Quick
+            Yaml_html_test.test_fix_links;
+          Alcotest.test_case "Annotate broken links" `Quick
+            Yaml_html_test.test_annotate;
+          Alcotest.test_case "Verbose annotate broken links" `Quick
+            Yaml_html_test.test_verbose_annotate;
+        ] );
       ( "link-status",
         [
           Alcotest.test_case "Valid link" `Quick test_valid_link;
