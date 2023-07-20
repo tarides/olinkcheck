@@ -16,7 +16,7 @@ depends: [
   "ezcurl-lwt"
   "cmdliner"
   "re"
-  "parsexp"
+  "sexplib"
   "yaml"
   "lambdasoup"
   "odoc" {with-doc}
