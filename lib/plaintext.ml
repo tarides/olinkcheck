@@ -6,7 +6,7 @@ let link_delimiter = ""
 let url_regexp =
   Re.compile
     (Re.Perl.re
-       {|https?://(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b((\.[-a-zA-Z0-9()@:%_\+\*~#?&//=]+)|([-a-zA-Z0-9()@:%_\+\*~#?&//=]))*|})
+       {|https?://(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(([\.,][-a-zA-Z0-9()@:%_\+\*~#?&//=]+)|([-a-zA-Z0-9()@:%_\+\*~#?&//=]))*|})
 
 let extract_links s =
   List.map Utils.trim_trailing_whitespace (Re.matches url_regexp s)
