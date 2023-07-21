@@ -1,3 +1,3 @@
 (library
  (public_name olinkcheck)
- (libraries omd ezcurl-lwt lwt re sexplib yaml lambdasoup))
+ (libraries omd ezcurl-lwt lwt re parsexp yaml lambdasoup))
